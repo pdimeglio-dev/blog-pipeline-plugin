@@ -78,11 +78,19 @@ Generate slug:
 
 **Length**: 400–800 words. Anything under feels thin; anything over loses readers.
 
-**Structure**:
-1. **Open with friction or a confession** — a moment when something annoyed you, surprised you, or didn't work. Not "I'm excited to announce". Specific moment, first person.
-2. **What you actually did** — concrete description of the work, drawing from `recent_features`, `bugs_fixed`, or `architecture_changes`. Name the pattern, the API, the trade-off. Code snippets when they earn their place — short, illustrative, not a textbook.
-3. **A wrinkle** — what almost broke, what you'd do differently, what you didn't ship. Honesty over polish.
-4. **End** with a practical takeaway or open question. **Never** an inspirational wrap-up or mic drop.
+**Structure** — mirror the structure of existing posts on the site:
+
+1. **Opening paragraphs (no heading)** — A concrete moment: a bug, a surprise, a decision point. First person, specific. Sets up the problem without announcing the solution. 2–4 paragraphs, no `##`.
+
+2. **`##` sections named by concept/topic** — Each section covers one idea: the problem, the architecture, the trade-off, what broke, what you'd do differently. Name sections after *what the reader learns*, not after *what you did in order*. Examples from existing posts: "The architecture I built", "Where it fell apart on Vercel", "What actually shipped", "Architecture Decisions". Never name sections by sequence ("Step 1", "PR 1") — the reader doesn't care about your development chronology.
+
+3. **Code snippets** — Short and trimmed. Show the interesting line, not the full file. Add `// (trimmed)` if you cut content. Snippets earn their place by illustrating a specific point, not by being complete.
+
+4. **A wrinkle section** — what almost broke, what you'd do differently, what's still not solved. This is often the most memorable part.
+
+5. **Closing section** — Practical and honest. Name it something concrete ("What I'd tell someone evaluating X", "The honest takeaway", or just a standalone sentence before a `---` divider). Never inspirational. Never a mic drop.
+
+**Critical framing rule**: The Reporter JSON contains commit history, PR counts, and grouped work units. Use those as **raw material to understand what was built** — do not use them as the narrative frame. The post is about the problem and the architecture, not about "how many PRs it took" or "what each commit did". A reader who has never seen your repo should come away understanding why the design exists and how it works — not knowing your PR sequence.
 
 **Voice tells to match** (from `tone` in project config + AGENTS.md required patterns):
 - Contractions, fragments, parenthetical asides.
