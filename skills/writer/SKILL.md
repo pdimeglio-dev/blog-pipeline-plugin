@@ -112,6 +112,10 @@ Generate slug:
 
 **Critical framing rule**: The Reporter JSON contains commit history, PR counts, and grouped work units. Use those as **raw material to understand what was built** — do not use them as the narrative frame. The post is about the problem and the architecture, not about "how many PRs it took" or "what each commit did". A reader who has never seen your repo should come away understanding why the design exists and how it works — not knowing your PR sequence.
 
+**Single-topic rule**: Pick one main topic from the Reporter JSON and write the entire post about that topic. The Reporter may include multiple bugs, features, and architecture changes that happened in the lookback window — most of them are not the post's subject. Secondary issues (unrelated bug fixes, CI/CD problems, dependency updates) that don't directly contribute to the main story **do not belong in the post**. Including them makes the post feel like a changelog, not an engineering reflection. If a bug fix isn't the story, leave it out entirely.
+
+**No fabricated specifics**: Only include time estimates, durations, and counts that appear explicitly in `session_context` or the Reporter JSON fields. Do not invent them from inference ("took a few hours", "about two minutes", "spent an afternoon"). If you don't know how long something took, don't say how long it took. Fabricated specifics undermine the post's credibility and contradict what the author actually experienced.
+
 **Voice tells to match** (from `tone` in project config + AGENTS.md required patterns):
 - Contractions, fragments, parenthetical asides.
 - Imperfect transitions: "Anyway,", "So,", "The other thing was…"
@@ -136,6 +140,8 @@ Generate slug:
 - No banned words from AGENTS.md anywhere.
 - No "this demonstrates", "showcases", "force multiplier", "robust", "seamless", or em-dash-as-dramatic-pause patterns.
 - No `## PR 1`, `## Step 1`, `## Day 1` headings. Sections are concepts, not chronology. (Note: an inline list of phases inside a section, with bold labels like `**PR 1** — ...`, is also forbidden as a structural device.)
+- No secondary bugs or unrelated issues included. The Reporter JSON may have multiple bugs_fixed and recent_features — only those directly relevant to the post's single main topic appear in the draft. Everything else is omitted.
+- No fabricated time estimates or durations. If a specific time ("took 40 minutes", "spent an afternoon", "a week of work") doesn't appear verbatim in session_context or the Reporter JSON, do not write it.
 
 If any sentence sounds like a Medium article or a marketing case study, rewrite it.
 
