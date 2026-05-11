@@ -1,0 +1,62 @@
+{
+  "dimeglio_dev_path": "~/Development/dimeglio.dev",
+  "projects": [
+    {
+      "id": "paddle-games",
+      "name": "The Paddle Games",
+      "path": "~/Development/paddle-games",
+      "git_remote": "origin",
+      "lookback_days": 14,
+      "tone": "playful, product-focused, accessible to non-developers",
+      "skills_showcased": ["React", "real-time game logic", "UX design", "WebSockets", "Strava API"],
+      "min_days_between_posts": 5,
+      "max_posts_per_month": 4,
+      "priority": 5,
+      "image_theme": {
+        "background": "#000000",
+        "accent_primary": "#4ade80",
+        "accent_secondary": "#06b6d4",
+        "style_keywords": "wave forms, kinetic energy, water dynamics, sports tech",
+        "mood": "energetic, competitive, fluid"
+      }
+    },
+    {
+      "id": "dimeglio-dev",
+      "name": "dimeglio.dev",
+      "path": "~/Development/dimeglio.dev",
+      "git_remote": "origin",
+      "lookback_days": 14,
+      "tone": "reflective, technical, honest about what worked and what didn't",
+      "skills_showcased": ["Next.js", "AI integration", "RAG", "TypeScript", "system design"],
+      "min_days_between_posts": 7,
+      "max_posts_per_month": 3,
+      "priority": 3,
+      "image_theme": {
+        "background": "#000000",
+        "accent_primary": "#a855f7",
+        "accent_secondary": "#6366f1",
+        "style_keywords": "AI neural nets, geometric shapes, flowing data, network graphs",
+        "mood": "intelligent, sophisticated, forward-thinking"
+      }
+    },
+    {
+      "id": "project-batcave",
+      "name": "Project Batcave",
+      "path": "~/Development/project-batcave",
+      "git_remote": "origin",
+      "lookback_days": 14,
+      "tone": "technical, systems-focused, unapologetically nerdy",
+      "skills_showcased": ["systems programming", "infrastructure", "tooling"],
+      "min_days_between_posts": 7,
+      "max_posts_per_month": 3,
+      "priority": 4,
+      "image_theme": {
+        "background": "#000000",
+        "accent_primary": "#f7dd30",
+        "accent_secondary": null,
+        "style_keywords": "gothic geometry, dramatic light beams, signal radiating shapes, city silhouette",
+        "mood": "dark, dramatic, technical"
+      }
+    }
+  ]
+}

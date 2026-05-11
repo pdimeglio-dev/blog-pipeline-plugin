@@ -1,0 +1,13 @@
+{
+  "name": "pablo-plugins",
+  "plugins": [
+    {
+      "name": "blog-pipeline",
+      "source": "./"
+    }
+  ],
+  "owner": {
+    "name": "Pablo Di Meglio",
+    "email": "dimeglio.pablo@gmail.com"
+  }
+}

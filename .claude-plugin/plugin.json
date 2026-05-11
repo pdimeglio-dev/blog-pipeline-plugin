@@ -1,0 +1,7 @@
+{
+  "name": "blog-pipeline",
+  "displayName": "Blog Pipeline",
+  "description": "Agentic blog content pipeline for dimeglio.dev — reporter, writer, rater, publisher, and social manager.",
+  "version": "0.1.0",
+  "author": "Pablo Di Meglio"
+}
