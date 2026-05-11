@@ -69,8 +69,13 @@ Read `${dimeglio_dev_path}/AGENTS.md`. Locate the section between `<!-- BEGIN:bl
 
 Pick a title that's:
 - Concrete, not abstract. Names a thing you did, not a theme.
-- 5–12 words. Em-dashes are fine for two-clause titles.
-- **Title Case** — capitalize main words; lowercase articles, conjunctions, and short prepositions (a, an, the, of, in, on, with, for, and, or). Examples from real posts: "Overengineering Observability on a Portfolio Site", "How I Built dimeglio.dev in 3 Days with AI", "Welcome, Guillermo — The AI Agent That Lives On My Portfolio". Brand/product casing stays as-is ("dimeglio.dev", "iPhone").
+- 4–10 words. Shorter is better. No subtitle.
+- **No em-dashes (—) in titles, ever.** No colons (`:`) splitting a topic and subtitle. These read as AI-generated.
+- **Banned title formulas (instant AI tell)**: "How X Led to Y", "How I Built X in Y Days", "X: Y and Z" (topic-colon-subtitle), "Why X Matters", "The X That Y", "What X Taught Me About Y", "From X to Y", anything starting with "Building".
+- **Title Case** — capitalize main words; lowercase articles, conjunctions, and short prepositions (a, an, the, of, in, on, with, for, and, or). Sentence-case is also fine for casual posts ("$3 SEO audit with AI"). Brand/product casing stays as-is ("dimeglio.dev", "iPhone").
+- Examples of titles that feel human (specific, slightly off-balance, not formula-shaped): "Overengineering Observability on a Portfolio Site", "$3 SEO audit with AI", "Welcome, Guillermo".
+- Examples of titles that yell AI (do not produce these): "How Two Stuck Activities Led to an Outbox Pattern", "Something Is Stuck: Strava Webhooks and an Outbox Pattern", "Building a Reliable Webhook Pipeline with the Outbox Pattern".
+- Good replacements for the AI-shaped versions above: "Strava Webhooks Were Eating Activities", "Why My Strava Webhook Pipeline Needs an Outbox", "Two Paddlers Vanished from the Leaderboard".
 - No banned buzzwords (see AGENTS.md voice rules). No clickbait.
 
 Generate slug:
@@ -125,24 +130,40 @@ Generate slug:
 - First person throughout. No royal "we" unless it's literally a team thing.
 - **Shape voice noticeably by the project's `tone` field**. paddle-games (playful, product-focused) reads visibly different from project-batcave (unapologetically nerdy, systems-focused) which reads different from dimeglio-dev (reflective, technical, honest). The `tone` string isn't decoration — it changes word choice, pacing, what jokes (if any) land. Read it before drafting.
 
-**Voice tells to avoid** (from AGENTS.md banned patterns — read them fresh, but these are the core):
+**Voice tells to avoid** (from AGENTS.md banned patterns, but these are the core):
+- **Em-dashes (—) anywhere.** Zero tolerance. They are the single loudest AI tell in long prose. Use periods, parentheses, or commas instead. Same for en-dashes (–) used as punctuation. Hyphens in compound words ("read-and-claim", "dead-letter") are fine. If you find yourself reaching for `—`, the sentence wants a period or a parenthesis.
+- **AI prose patterns to avoid**:
+  - **"Not X, not Y, just Z"** three-clause sentences ("Not a crash, not a 500, just a leaderboard that hadn't moved"). Rewrite as: "It wasn't a crash or a 500. The leaderboard just hadn't moved."
+  - **Triple parallel short sentences in a row** ("The app looked fine. The logs looked fine. Strava had sent the webhooks."). Break the rhythm: keep at most two parallel sentences, then vary.
+  - **Climactic three-part summaries** ("The root cause was one thing. The fix was two lines. What came after the fix was five PRs."). These are AI rhetorical structures. Pick one fact and let it stand.
+  - **Aphoristic mic-drop endings** ("Database first, process second, own your retries."). Real engineers don't end posts with bumper-sticker maxims.
+  - **"The thing I should have done differently:"** as a section opener. Just say what you'd do differently.
+  - **"X is the answer to Y and there's a reason it's the answer"** rhetorical confirmation patterns.
 - Buzzwords: "force multiplier", "game-changer", "leverage", "robust", "seamless", "humbling", "delve", "tapestry", "harness", "cutting-edge", "paradigm shift".
 - Dramatic pauses: "That's not a typo", "Here's the beautiful part", "Let that sink in".
 - Defensive framing: "This isn't about AI replacing engineers".
 - Profound conclusions or mic-drop endings.
 
+**How to replace em-dashes specifically**:
+- `text — text` → if it's a parenthetical, use parentheses: `text (text)`. If it's two thoughts, use a period: `text. Text`. If it's a list interrupter, use a comma: `text, text,`.
+- Example before: "After a week of shadow data with no anomalies — receipts were being written correctly, the event counts matched — I deployed the drain worker."
+- Example after: "After a week of shadow data with no anomalies (receipts were being written correctly, the event counts matched), I deployed the drain worker."
+
 **Self-check before emitting** — re-read the draft once and verify all of:
+- **Zero em-dashes (—) in the entire file.** Search the file content for the character `—`. If even one is present, rewrite that sentence with a period, parentheses, or a comma. This includes frontmatter (`description`, `coverAlt`) and body. The only place em-dashes are allowed is inside a fenced code block (Mermaid label, code comment) where they have technical meaning.
+- **Title check**: title contains no em-dash, no colon used to attach a subtitle, no banned formula ("How X Led to Y", "How I Built X", "X: Y and Z", "Why X Matters", "Building X with Y"). If the title matches any banned formula, rewrite it.
+- **Prose pattern check**: scan for "Not X, not Y, just Z" three-clause sentences, triple-parallel sentence rhythms ("X did A. Y did B. Z did C."), climactic three-part summaries, and mic-drop one-liners. Rewrite any you find.
 - Word count is between 1200 and 2000 (target ~1600). If under 1000, expand a section or add a wrinkle/postmortem section.
 - At least one Mermaid diagram if the post describes architecture, a pipeline, or a flow.
 - 5–8 `##` sections, plus subsections where natural.
-- Title is Title Case, not lowercase.
+- Title is in Title Case or sentence case (consistent with existing site posts).
 - At least one internal `[text](/blog/<slug>)` link if any prior post on the site is related.
 - 1–3 `{/* ![alt](path) */}` body image placeholders at natural visual breakpoints.
-- Closing footer present: `---` followed by blank line, then italic credit/source line ending with a GitHub link.
+- Closing footer present: `---` followed by blank line, then italic credit/source line ending with a GitHub link. The closing line should not contain em-dashes either.
 - No banned words from AGENTS.md anywhere.
-- No "this demonstrates", "showcases", "force multiplier", "robust", "seamless", or em-dash-as-dramatic-pause patterns.
+- No "this demonstrates", "showcases", "force multiplier", "robust", "seamless" patterns.
 - No `## PR 1`, `## Step 1`, `## Day 1` headings. Sections are concepts, not chronology. (Note: an inline list of phases inside a section, with bold labels like `**PR 1** — ...`, is also forbidden as a structural device.)
-- No secondary bugs or unrelated issues included. The Reporter JSON may have multiple bugs_fixed and recent_features — only those directly relevant to the post's single main topic appear in the draft. Everything else is omitted.
+- No secondary bugs or unrelated issues included. The Reporter JSON may have multiple bugs_fixed and recent_features. Only those directly relevant to the post's single main topic appear in the draft. Everything else is omitted.
 - No fabricated time estimates or durations. If a specific time ("took 40 minutes", "spent an afternoon", "a week of work") doesn't appear verbatim in session_context or the Reporter JSON, do not write it.
 
 If any sentence sounds like a Medium article or a marketing case study, rewrite it.
