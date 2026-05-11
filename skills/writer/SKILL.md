@@ -11,6 +11,7 @@ allowed-tools:
   - Bash(mkdir *)
   - Bash(grep *)
   - Bash(cut *)
+  - Bash(sed *)
   - Bash(test *)
   - Bash(rm *)
 argument-hint: "<reporter_json>"
@@ -29,6 +30,7 @@ In both cases, parse the JSON and extract:
 - `project_id` — used to look up project config
 - `summary`, `recent_features`, `bugs_fixed`, `architecture_changes`, `highlights`, `tech_signals` — raw material for the post
 - `period` — date window
+- `session_context` — **optional** array of verbatim user messages from Claude Code sessions. When present, treat these as the primary source of truth for *what actually happened and why*. Git commits are the what; session messages are the why — the real bugs, the real decisions, the actual friction. Prefer session context over inferences from commit messages when they conflict.
 
 If `low_signal: true`, **stop immediately** and return `{ "error": "low_signal", "project_id": "<id>" }`. The Publisher should not invoke you in this case, but be defensive.
 
@@ -169,17 +171,32 @@ If a file at that path already exists (same date + same title-kebab), do not ove
 
 ### 8. Generate cover image
 
-Build the prompt from the project's `image_theme` block, following this template:
+The image should reflect the *specific post*, not just the project's general aesthetic. Build the prompt in two parts: post content (from the MDX you just wrote) + project style (from `image_theme`).
+
+**Extract post content from the MDX:**
+
+```bash
+# Extract ## section headings — these are the post's key topics
+HEADINGS=$(grep '^## ' "${dimeglio_dev_path}/content/blog/<slug>.mdx" \
+  | sed 's/^## //' \
+  | head -6 \
+  | tr '\n' '; ' \
+  | sed 's/; $//')
+```
+
+**Build the prompt** using title, description, headings, and `image_theme`:
 
 ```
 A modern, cinematic blog cover image for a tech article titled "{title}".
+The article is about: {description}
+Key topics: {headings}
 Background: true black ({background}). Primary accent: {accent_primary}. Secondary: {accent_secondary}.
 Style: {style_keywords}. Mood: {mood}.
 No faces, no text, no logos. Abstract geometric shapes and light effects only.
 Aspect ratio: 16:9. Dark, premium, editorial quality.
 ```
 
-If `accent_secondary` is `null`, drop the "Secondary:" line. The Reporter does not control this — only the project config does.
+If `accent_secondary` is `null`, drop the "Secondary:" line. Use the headings to make the visual direction specific — an outbox/webhook post should suggest data flow; a leaderboard post should suggest competition and motion; a debugging post should suggest investigation and resolution. The `image_theme` ensures it stays on-brand for the project.
 
 Call the OpenAI Images API:
 
