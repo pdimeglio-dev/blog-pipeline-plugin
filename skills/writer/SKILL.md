@@ -59,6 +59,8 @@ Read `$PLUGIN_ROOT/projects.config.json`. Find the entry matching `project_id`. 
 
 Also extract the top-level `dimeglio_dev_path` (the site root). Expand `~` to the home directory.
 
+Note: `image_theme` may include an optional `accent_tertiary` color. If present, include it in the image prompt (see Step 8).
+
 ### 3. Read voice rules fresh
 
 Read `${dimeglio_dev_path}/AGENTS.md`. Locate the section between `<!-- BEGIN:blog-voice-rules -->` and `<!-- END:blog-voice-rules -->`. Extract the **banned patterns** list and the **required patterns** list. Apply them when drafting. Do not paraphrase the rules into the skill — read them fresh every run, because they change.
@@ -196,13 +198,13 @@ HEADINGS=$(grep '^## ' "${dimeglio_dev_path}/content/blog/<slug>.mdx" \
 A modern, cinematic blog cover image for a tech article titled "{title}".
 The article is about: {description}
 Key topics: {headings}
-Background: true black ({background}). Primary accent: {accent_primary}. Secondary: {accent_secondary}.
+Background: true black ({background}). Primary accent: {accent_primary}. Secondary: {accent_secondary}.[Tertiary: {accent_tertiary}.]
 Style: {style_keywords}. Mood: {mood}.
-No faces, no text, no logos. Abstract geometric shapes and light effects only.
+No faces, no logos. No text or labels — the only exception is if the main topic of the article is a named technical pattern (e.g. "Outbox Pattern", "Event Sourcing"), in which case that single pattern name may appear as a subtle label on the relevant visual element. Abstract geometric shapes and light effects otherwise.
 Aspect ratio: 16:9. Dark, premium, editorial quality.
 ```
 
-If `accent_secondary` is `null`, drop the "Secondary:" line. Use the headings to make the visual direction specific — an outbox/webhook post should suggest data flow; a leaderboard post should suggest competition and motion; a debugging post should suggest investigation and resolution. The `image_theme` ensures it stays on-brand for the project.
+If `accent_secondary` is `null`, drop the "Secondary:" line. If `accent_tertiary` is present, replace `[Tertiary: {accent_tertiary}.]` with `Tertiary: {accent_tertiary}.`; if absent, omit that line entirely. Use the headings to make the visual direction specific — an outbox/webhook post should suggest queued data flow and pipeline nodes; a leaderboard post should suggest competition and motion; a debugging post should suggest investigation and resolution. The `image_theme` ensures it stays on-brand for the project.
 
 Call the OpenAI Images API:
 
