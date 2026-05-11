@@ -61,8 +61,15 @@ Good example of thematic grouping:
 - Commits: "Add outbox table", "Wire outbox processor", "Add dead letter queue", "Retry failed outbox jobs" → one unit: "Outbox pattern for reliable webhook delivery"
 
 ### 7. Identify highlights and tech signals
-- **Highlights**: the single most technically interesting or impressive thing from the period (1–2 sentences, specific)
-- **Tech signals**: specific skills/patterns visible in the work (e.g. "outbox pattern", "Strava OAuth", "Pinecone vector upsert", "React Server Components")
+
+- **Highlights**: 1–2 short items naming the single most blog-worthy work unit from the lists above. Each item is ONE sentence, MAX 25 words. State what was done in concrete terms — scope, difficulty, novelty. Do NOT editorialize. Do NOT explain why it matters or what skills it demonstrates — that is the Writer's job.
+
+  ✓ Good: "Outbox pattern rolled out across 5 PRs, with a shadow-mode dual-path validation step before cutover to the new system."
+  ✗ Bad: "Implemented the outbox pattern — a critical architectural pattern for reliable event delivery. This demonstrates interview-ready system design thinking around graceful degradation."
+
+  **Banned in highlights**: "critical", "sophisticated", "demonstrates", "showcases", "interview-ready", "graceful", "robust", "scalable", "elegant", "ensures", em-dash mid-sentence ("X — a Y pattern…"). If you wrote any of these, rewrite the highlight before emitting.
+
+- **Tech signals**: 3–7 specific skills/patterns visible in the work (e.g. "outbox pattern", "Strava OAuth", "Pinecone vector upsert", "React Server Components"). Concrete nouns only — no marketing words.
 
 ## Output
 
@@ -98,7 +105,7 @@ Emit **only** this JSON object — no preamble, no explanation, no markdown fenc
     }
   ],
   "highlights": [
-    "The single most interesting or impressive item this period — specific, 1–2 sentences"
+    "One concrete sentence naming the most blog-worthy work unit. Max 25 words. No editorial framing."
   ],
   "tech_signals": [
     "outbox pattern",
