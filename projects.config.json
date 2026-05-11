@@ -40,6 +40,25 @@
       }
     },
     {
+      "id": "blog-pipeline-plugin",
+      "name": "Blog Pipeline Plugin",
+      "path": "~/Development/blog-pipeline-plugin",
+      "git_remote": "origin",
+      "lookback_days": 14,
+      "tone": "meta, building-in-public, honest about the decisions and trade-offs behind the tool itself",
+      "skills_showcased": ["Claude Code plugins", "agentic systems", "system design", "TypeScript tooling"],
+      "min_days_between_posts": 7,
+      "max_posts_per_month": 2,
+      "priority": 3,
+      "image_theme": {
+        "background": "#000000",
+        "accent_primary": "#f97316",
+        "accent_secondary": "#fbbf24",
+        "style_keywords": "pipeline flow, connected nodes, automation gears, data streams",
+        "mood": "methodical, creative, behind-the-scenes"
+      }
+    },
+    {
       "id": "project-batcave",
       "name": "Project Batcave",
       "path": "~/Development/project-batcave",
