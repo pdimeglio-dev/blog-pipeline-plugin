@@ -21,9 +21,13 @@ You are the Writer agent in the blog pipeline for dimeglio.dev. You receive a Re
 
 ## Inputs
 
-The invocation passes a Reporter JSON object (the contract emitted by the Reporter skill). Required fields you will read:
+**Where the JSON comes from:**
+- **Manual invocation**: the Reporter JSON is passed as the argument when invoking this skill (e.g. `/writer {"project_id": "paddle-games", ...}`). Look for it in the invocation text.
+- **Publisher orchestration**: the Publisher embeds the Reporter JSON inline in the prompt it sends you as a subagent. Look for it in your context.
+
+In both cases, parse the JSON and extract:
 - `project_id` — used to look up project config
-- `summary`, `recent_features`, `bugs_fixed`, `architecture_changes`, `highlights`, `tech_signals` — raw material
+- `summary`, `recent_features`, `bugs_fixed`, `architecture_changes`, `highlights`, `tech_signals` — raw material for the post
 - `period` — date window
 
 If `low_signal: true`, **stop immediately** and return `{ "error": "low_signal", "project_id": "<id>" }`. The Publisher should not invoke you in this case, but be defensive.
