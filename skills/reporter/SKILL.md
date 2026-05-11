@@ -5,6 +5,9 @@ model: haiku
 allowed-tools:
   - Bash(git *)
   - Bash(git -C *)
+  - Bash(find *)
+  - Bash(python3 *)
+  - Bash(sed *)
   - Read
 argument-hint: "<project_id>"
 user-invocable: true
@@ -48,6 +51,65 @@ If that fails (shallow clone, etc.), skip gracefully.
 - `<path>/CHANGELOG.md` — structured release notes
 - `<path>/RELEASES.md` — alternative to CHANGELOG
 - `<path>/README.md` — project description and tech stack context
+
+### 5b. Read recent Claude Code session context
+
+Git commits record *what* changed. Claude Code session transcripts record *why* — the real bugs, the actual decisions, the implementation context that never makes it into commit messages. Read them.
+
+Derive the Claude Code project directory for this project path (Claude Code encodes paths by replacing `/` with `-`):
+
+```bash
+HOME=$(eval echo ~)
+ENCODED=$(echo "$EXPANDED_PATH" | sed 's|/|-|g')
+CLAUDE_PROJECT_DIR="$HOME/.claude/projects/$ENCODED"
+```
+
+Find `.jsonl` session files modified within the lookback window:
+
+```bash
+find "$CLAUDE_PROJECT_DIR" -name "*.jsonl" -mtime -"$lookback_days" 2>/dev/null
+```
+
+If no directory exists or no files match, skip gracefully — session context is optional.
+
+For each file found, extract user messages with timestamps inside the lookback window. User messages are the most useful signal — they describe the problem, the intent, and the context in natural language:
+
+```bash
+python3 -c "
+import json, sys
+from datetime import datetime, timedelta, timezone
+
+cutoff = datetime.now(timezone.utc) - timedelta(days=$lookback_days)
+messages = []
+try:
+    for line in open('$SESSION_FILE'):
+        try:
+            msg = json.loads(line.strip())
+            if msg.get('type') == 'user' and not msg.get('isSidechain'):
+                ts_str = msg.get('timestamp', '')
+                if ts_str:
+                    ts = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
+                    if ts >= cutoff:
+                        content = msg.get('message', {}).get('content', '')
+                        if isinstance(content, list):
+                            content = ' '.join(
+                                c.get('text', '') for c in content
+                                if isinstance(c, dict) and c.get('type') == 'text'
+                            )
+                        content = str(content).strip()
+                        if len(content) > 20:
+                            messages.append(content[:600])
+        except:
+            pass
+except:
+    pass
+for m in messages[:25]:
+    print(m)
+    print('---')
+"
+```
+
+Collect all output. These user messages give the Writer the real engineering narrative — what actually broke, why a change was made, what the tradeoff was.
 
 ### 6. Group commits into themed work units
 Group related commits by theme — do NOT produce one bullet per commit. Look for:
@@ -111,9 +173,15 @@ Emit **only** this JSON object — no preamble, no explanation, no markdown fenc
     "outbox pattern",
     "webhook idempotency",
     "Strava OAuth"
+  ],
+  "session_context": [
+    "Verbatim user message from a Claude Code session describing the real bug or decision (truncated to 600 chars)",
+    "Another user message..."
   ]
 }
 ```
+
+`session_context` is **omitted** if no Claude Code sessions were found in the lookback window — it is never an empty array, just absent. The Writer treats it as optional enrichment.
 
 **If `low_signal: true`**, only emit these fields and stop:
 ```

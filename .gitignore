@@ -1,0 +1,12 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp

@@ -14,8 +14,9 @@
       "priority": 5,
       "image_theme": {
         "background": "#000000",
-        "accent_primary": "#4ade80",
-        "accent_secondary": "#06b6d4",
+        "accent_primary": "#84cc16",
+        "accent_secondary": "#22d3ee",
+        "accent_tertiary": "#FC4C02",
         "style_keywords": "wave forms, kinetic energy, water dynamics, sports tech",
         "mood": "energetic, competitive, fluid"
       }
