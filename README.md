@@ -1,6 +1,6 @@
 # Blog Pipeline Plugin
 
-Agentic blog content pipeline for [dimeglio.dev](https://dimeglio.dev). Turns local git history into MDX blog posts with DALL-E 3 cover images and LinkedIn/X copy — ready to approve and publish.
+Agentic blog content pipeline for [dimeglio.dev](https://dimeglio.dev). Turns local git history into MDX blog posts with DALL-E 3 cover images — ready to approve and publish.
 
 ## Setup
 
@@ -26,28 +26,25 @@ Add to `~/.claude/settings.json`:
 
 The plugin activates in every Claude Code session automatically after that.
 
-**To share publicly via GitHub:** swap the `source` block to `{ "source": "github", "repo": "pdimeglio/blog-pipeline-plugin" }` — the `enabledPlugins` key stays the same.
+### 2. Set the OpenAI API key
 
-### 2. Configure env vars
+Create a `.env` file at the plugin root (gitignored):
 
-The plugin reads `OPENAI_API_KEY` from `~/Development/dimeglio.dev/.env.local`. Make sure that file exists and contains:
-
-```
+```bash
+cp .env.example .env
+# then add your key:
 OPENAI_API_KEY=sk-...
 ```
 
-This key is used for:
-- DALL-E 3 cover image generation (Writer)
-- `npm run ingest` embeddings sync (existing dimeglio.dev script)
+This key is used for DALL-E 3 cover image generation. Copy it from `dimeglio.dev/.env.local` if you already have it there.
 
 ### 3. Configure projects
 
-Edit `projects.config.json` at the plugin root to:
+Edit `projects.config.json` to:
 - Set `dimeglio_dev_path` to your local clone of the dimeglio.dev repo
 - Update `path` for each project to its actual local path
-- Add/remove projects as needed
 
-`project-batcave` ships with a placeholder path (`~/Development/project-batcave`). Update it when that repo exists.
+`project-batcave` ships with a placeholder path. Update it when that repo exists.
 
 ## Usage
 
@@ -57,59 +54,84 @@ Edit `projects.config.json` at the plugin root to:
 /blog-pipeline:run
 ```
 
-The Publisher will:
-1. Score all projects and pick the top 1–2 candidates for today
-2. Run Reporter → Writer → Rater → Social Manager on each
-3. Drop approved drafts into `dimeglio.dev/content/blog/<slug>.mdx` with `published: false`
-4. Write cover images to `dimeglio.dev/public/blog/<slug>/cover.jpg`
-5. Write social copy to `dimeglio.dev/content/blog/<slug>.social.json`
+Selects the top 1–2 projects by score, then for each runs Reporter → Writer → Rater and drops rated-pass drafts into `dimeglio.dev/content/blog/` with `published: false`. Cover images go to `dimeglio.dev/public/blog/<slug>/cover.jpg`.
+
+**First post for any project is always an architectural overview.** The pipeline detects `has_intro_post: false` in state and instructs the Writer to produce an intro post before any feature posts.
+
+### Check pipeline status
+
+```
+/blog-pipeline:status
+```
+
+Shows the draft queue, last run time, and per-project posting history.
+
+### Generate social copy for a draft
+
+After reviewing a draft and deciding to publish it:
+
+```
+/blog-pipeline:social-manager /path/to/draft.mdx
+```
+
+Presents LinkedIn and X copy for review, revises on feedback, saves `<slug>.social.json` next to the MDX when approved.
 
 ### Approve and publish a draft
 
-1. Open the draft in `dimeglio.dev/content/blog/`
-2. Flip `published: false` → `published: true`
-3. In the dimeglio.dev repo:
+1. Open the draft in `dimeglio.dev/content/blog/<slug>.mdx`
+2. Review and edit as needed
+3. Flip `published: false` → `published: true`
+4. In the dimeglio.dev repo:
    ```bash
    npm run ingest
-   git add -A && git commit -m "publish: <post title>"
+   git add content/blog/<slug>.mdx public/blog/<slug>/
+   git commit -m "publish: <post title>"
    git push
    ```
-4. Vercel auto-deploys within ~30 seconds
+5. Vercel auto-deploys within ~30 seconds
 
-### Run the Reporter on a single project (testing)
-
-Invoke the Reporter skill directly:
+### Run skills individually (testing / manual)
 
 ```
-/reporter paddle-games
+/blog-pipeline:reporter paddle-games
+/blog-pipeline:writer <reporter_json>
+/blog-pipeline:rater /path/to/draft.mdx
 ```
 
-Inspect the JSON output. This is how to validate Phase 1 before building Phase 2.
-
-## Pipeline Agents
+## Pipeline agents
 
 | Agent | Model | Role |
 |---|---|---|
-| Reporter | Haiku | Extracts git history → structured JSON |
-| Writer | Sonnet | Converts JSON → MDX post + DALL-E 3 cover image |
-| Rater | Haiku | Scores drafts, checks voice rules, pass/fail gate |
-| Publisher | Sonnet | Orchestrates the full pipeline, manages `editorial_state.json` |
-| Social Manager | Sonnet | Produces LinkedIn + X copy-paste text per approved draft |
+| Reporter | Haiku | Extracts git history + Claude Code session context → structured JSON |
+| Writer | Sonnet | JSON → MDX post + DALL-E 3 cover image |
+| Rater | Haiku | Scores draft, checks voice rules, pass/fail gate (threshold 6.5) |
+| Publisher | Sonnet | Orchestrates Reporter → Writer → Rater, manages `editorial_state.json` |
+| Social Manager | Sonnet | Interactive LinkedIn + X copy — revises on feedback, saves on approval |
 
 ## State
 
-`editorial_state.json` lives in the dimeglio.dev repo root. It tracks posting history and the draft queue. It is **not** auto-committed — commit it manually when you want to persist state across machines:
+`editorial_state.json` lives in the dimeglio.dev repo root. It tracks run history, draft queue, and per-project intro/posting status. It is **not** auto-committed — commit it manually when you want to persist state across machines:
 
 ```bash
 git -C ~/Development/dimeglio.dev add editorial_state.json
 git -C ~/Development/dimeglio.dev commit -m "chore: update editorial state"
 ```
 
-## Build phases
+## Cost
 
-- [x] Phase 1 — Foundation + Reporter
-- [ ] Phase 2 — Writer + Cover Image
-- [ ] Phase 3 — Rater
-- [ ] Phase 4 — Publisher
-- [ ] Phase 5 — Social Manager
-- [ ] Phase 6 — Polish + Ops
+| Item | Cost | Frequency | Monthly est. |
+|---|---|---|---|
+| DALL-E 3 cover image | ~$0.04/image | ~2/week | ~$0.35 |
+| Anthropic API (Reporter + Rater) | ~$0.01/run | ~2/week | ~$0.10 |
+| Anthropic API (Writer + Publisher + Social) | ~$0.05/run | ~2/week | ~$0.45 |
+| **Total** | | | **~$0.90/month** |
+
+Costs scale linearly with post volume. Running the pipeline more frequently doesn't change per-post cost.
+
+## Phases shipped
+
+- [x] Phase 1 — Reporter (git history + Claude Code session context → JSON)
+- [x] Phase 2 — Writer (JSON → MDX + DALL-E 3 cover image)
+- [x] Phase 3 — Rater (voice rules + rubric scoring, pass/fail gate)
+- [x] Phase 4 — Publisher (orchestrator + intro mode for first posts)
+- [x] Phase 5 — Social Manager (LinkedIn + X copy with review loop)
