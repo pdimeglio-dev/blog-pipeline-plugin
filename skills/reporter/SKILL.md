@@ -47,10 +47,21 @@ git -C <path> diff --stat "HEAD@{<lookback_days>.days.ago}" HEAD 2>/dev/null | t
 ```
 If that fails (shallow clone, etc.), skip gracefully.
 
-### 5. Read supplementary docs (if present, read only first 80 lines of each)
-- `<path>/CHANGELOG.md` — structured release notes
-- `<path>/RELEASES.md` — alternative to CHANGELOG
-- `<path>/README.md` — project description and tech stack context
+### 5. Read supplementary docs
+
+Discover and read all markdown files in the repo — do not assume a fixed directory structure. Some projects have only a root README; others have dozens of docs spread across subdirectories. Read everything.
+
+```bash
+find "<expanded_path>" -name "*.md" \
+  ! -path "*/node_modules/*" \
+  ! -path "*/.git/*" \
+  ! -path "*/dist/*" \
+  ! -path "*/build/*" \
+  ! -name "CLAUDE.md" \
+  | sort
+```
+
+Read the full contents of every file found. Use all of it as context when grouping commits and writing the summary — service READMEs, architecture docs, and feature docs often reflect the real current state of the project far better than the root README, which may not have been updated in months.
 
 ### 5b. Read recent Claude Code session context
 
