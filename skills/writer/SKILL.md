@@ -317,32 +317,36 @@ if [ -n "$LOGO_PATH_RAW" ]; then
     # IS_INTRO: 1 if in intro mode, 0 for regular posts
     IS_INTRO=0  # set to 1 when Publisher says "FIRST post for this project"
     python3 -c "
-from PIL import Image
+from PIL import Image, ImageFilter
 
 cover = Image.open('$COVER_JPG').convert('RGBA')
 logo = Image.open('$LOGO_PATH_EXPANDED').convert('RGBA')
 
+# Both modes use bottom-right placement. Center compositions in DALL-E covers
+# are often busy; corners are typically clean. Intro just gets a bigger logo.
 if $IS_INTRO:
-    # Intro post: centered horizontally in the lower third, larger
-    scale = 0.20
-    logo_w = int(cover.width * scale)
-    logo_h = int(logo.height * (logo_w / logo.width))
-    logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
-    x = (cover.width - logo_w) // 2
-    y = int(cover.height * 0.68)
+    scale = 0.15   # ~268px logo on a 1792x1024 cover — branding presence
+    pad = 56
 else:
-    # Regular post: bottom-right corner, smaller
-    scale = 0.13
-    logo_w = int(cover.width * scale)
-    logo_h = int(logo.height * (logo_w / logo.width))
-    logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
+    scale = 0.09   # ~161px logo — subtle watermark
     pad = 48
-    x = cover.width - logo_w - pad
-    y = cover.height - logo_h - pad
+
+logo_w = int(cover.width * scale)
+logo_h = int(logo.height * (logo_w / logo.width))
+logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
+x = cover.width - logo_w - pad
+y = cover.height - logo_h - pad
+
+# Soft drop shadow so the logo lifts off if it lands on a bright area.
+# On dark covers this is invisible (intended); on bright covers it saves readability.
+shadow_canvas = Image.new('RGBA', (logo_w + 80, logo_h + 80), (0, 0, 0, 0))
+shadow_canvas.paste((0, 0, 0, 180), (40, 40), logo.split()[3])
+shadow_canvas = shadow_canvas.filter(ImageFilter.GaussianBlur(radius=18))
+cover.alpha_composite(shadow_canvas, (x - 40 + 6, y - 40 + 6))
 
 cover.paste(logo, (x, y), logo)
 cover.convert('RGB').save('$COVER_JPG', quality=95)
-print('Logo composited at ($IS_INTRO intro mode)')
+print('Logo composited (intro=$IS_INTRO)')
 "
   fi
 fi
