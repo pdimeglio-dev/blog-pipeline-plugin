@@ -14,6 +14,7 @@ allowed-tools:
   - Bash(sed *)
   - Bash(test *)
   - Bash(rm *)
+  - Bash(python3 *)
 argument-hint: "<reporter_json>"
 user-invocable: true
 ---
@@ -61,7 +62,9 @@ Read `$PLUGIN_ROOT/projects.config.json`. Find the entry matching `project_id`. 
 
 Also extract the top-level `dimeglio_dev_path` (the site root). Expand `~` to the home directory.
 
-Note: `image_theme` may include an optional `accent_tertiary` color. If present, include it in the image prompt (see Step 8).
+Note: `image_theme` may include:
+- An optional `accent_tertiary` color — include it in the image prompt if present (see Step 8).
+- An optional `logo_path` — path to the project's logo PNG, used for compositing after image generation (see Step 8). Expand `~` to the actual home directory.
 
 ### 3. Read voice rules fresh
 
@@ -299,6 +302,53 @@ sips -s format jpeg "${dimeglio_dev_path}/public/blog/<slug>/cover.png" \
      --out "${dimeglio_dev_path}/public/blog/<slug>/cover.jpg" >/dev/null
 rm "${dimeglio_dev_path}/public/blog/<slug>/cover.png"
 ```
+
+**Logo compositing (if `logo_path` is set in project config):**
+
+After the JPG is on disk, composite the project logo onto it using Pillow. Skip gracefully if `logo_path` is absent or the logo file doesn't exist.
+
+```bash
+LOGO_PATH_RAW="<logo_path from project config, or empty string if absent>"
+COVER_JPG="${dimeglio_dev_path}/public/blog/<slug>/cover.jpg"
+
+if [ -n "$LOGO_PATH_RAW" ]; then
+  LOGO_PATH_EXPANDED=$(echo "$LOGO_PATH_RAW" | sed "s|~|$HOME|g")
+  if [ -f "$LOGO_PATH_EXPANDED" ]; then
+    # IS_INTRO: 1 if in intro mode, 0 for regular posts
+    IS_INTRO=0  # set to 1 when Publisher says "FIRST post for this project"
+    python3 -c "
+from PIL import Image
+
+cover = Image.open('$COVER_JPG').convert('RGBA')
+logo = Image.open('$LOGO_PATH_EXPANDED').convert('RGBA')
+
+if $IS_INTRO:
+    # Intro post: centered horizontally in the lower third, larger
+    scale = 0.20
+    logo_w = int(cover.width * scale)
+    logo_h = int(logo.height * (logo_w / logo.width))
+    logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
+    x = (cover.width - logo_w) // 2
+    y = int(cover.height * 0.68)
+else:
+    # Regular post: bottom-right corner, smaller
+    scale = 0.13
+    logo_w = int(cover.width * scale)
+    logo_h = int(logo.height * (logo_w / logo.width))
+    logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
+    pad = 48
+    x = cover.width - logo_w - pad
+    y = cover.height - logo_h - pad
+
+cover.paste(logo, (x, y), logo)
+cover.convert('RGB').save('$COVER_JPG', quality=95)
+print('Logo composited at ($IS_INTRO intro mode)')
+"
+  fi
+fi
+```
+
+If the python3 call fails (Pillow not installed, logo file corrupt, etc.), surface the error in the return JSON's `errors` array but keep the cover image as-is — the DALL-E image without the logo is still usable.
 
 **Failure handling**: if either curl call fails or `jq` finds no URL (rate limit, content policy block, API error), do **not** delete the MDX. Capture the error message and surface it in the return JSON's `errors` array. The MDX still references `cover.jpg` — Publisher decides whether to retry or leave the placeholder.
 
