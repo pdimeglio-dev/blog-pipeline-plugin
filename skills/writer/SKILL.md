@@ -205,8 +205,21 @@ The intro post must cover these concepts, in roughly this order, using `##` head
 ### Source material for intro mode
 
 - **Primary**: `projects.config.json` — `name`, `tone`, `skills_showcased`
-- **Primary**: README.md from the project repo (read the first 80 lines at `${project_path}/README.md`)
-- **Secondary**: Reporter JSON `summary`, `tech_signals`, `recent_features` — for current state context only, not as the narrative frame
+- **Primary**: All markdown files in the project repo — discover and read them in full:
+
+```bash
+find "<project_path>" -name "*.md" \
+  ! -path "*/node_modules/*" \
+  ! -path "*/.git/*" \
+  ! -path "*/dist/*" \
+  ! -path "*/build/*" \
+  ! -name "CLAUDE.md" \
+  | sort
+```
+
+Read every file found. The root README is often outdated — service READMEs, architecture docs, and feature docs reflect the real current state. Use all of it.
+
+- **Secondary**: Reporter JSON `summary`, `tech_signals`, `recent_features` — for current-work context only, not as the narrative frame
 - **Voice**: same rules as always — first person, no em-dashes, no buzzwords, honest friction
 
 ### 6. Frontmatter

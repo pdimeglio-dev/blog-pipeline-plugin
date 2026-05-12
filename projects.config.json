@@ -8,7 +8,7 @@
       "git_remote": "origin",
       "lookback_days": 14,
       "tone": "playful, product-focused, accessible to non-developers",
-      "skills_showcased": ["React", "real-time game logic", "UX design", "WebSockets", "Strava API"],
+      "skills_showcased": ["microservices", "GCP Cloud Functions", "Firestore", "Pub/Sub", "Strava API", "event-driven architecture", "React", "challenges and badges", "leaderboards"],
       "min_days_between_posts": 5,
       "max_posts_per_month": 4,
       "priority": 5,
