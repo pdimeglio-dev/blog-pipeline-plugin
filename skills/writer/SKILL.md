@@ -34,6 +34,8 @@ In both cases, parse the JSON and extract:
 
 If `low_signal: true`, **stop immediately** and return `{ "error": "low_signal", "project_id": "<id>" }`. The Publisher should not invoke you in this case, but be defensive.
 
+**Intro mode**: if the Publisher's prompt contains the phrase "FIRST post for this project", you are in intro mode. Do not write about a specific feature or bug. Follow the **Intro Mode** section below instead of Steps 5–6 for body and structure.
+
 ## Steps
 
 ### 1. Load environment
@@ -167,6 +169,45 @@ Generate slug:
 - No fabricated time estimates or durations. If a specific time ("took 40 minutes", "spent an afternoon", "a week of work") doesn't appear verbatim in session_context or the Reporter JSON, do not write it.
 
 If any sentence sounds like a Medium article or a marketing case study, rewrite it.
+
+## Intro Mode
+
+Use this section **only** when the Publisher prompt says "FIRST post for this project." Skip Steps 5 above entirely and use the structure below for the body. Steps 1–4 (env, config, voice rules, title/slug) and Steps 6 onward (frontmatter, file write, cover image, return JSON) still apply normally.
+
+### Why intro mode exists
+
+Readers landing on a feature post with no project context have no reason to care. The first post for any project must answer: what is this, who uses it, and why does it exist — before any technical deep-dive.
+
+### Title for intro posts
+
+Pick a title that names the project and frames the post as an introduction without sounding like a launch announcement. Avoid "Introducing X" and "Building X with Y". Good shapes: "What The Paddle Games Is and How It Works", "Behind The Paddle Games", "How The Paddle Games Tracks Your Season".
+
+### Opening (no heading)
+
+Start with a personal moment: why this project was started, a frustration it was solving, or a specific scene that set it in motion. Not a product announcement. "I started building this because..." or open mid-scene. 2–3 paragraphs.
+
+### Required sections
+
+The intro post must cover these concepts, in roughly this order, using `##` headings named after the concepts (not this list):
+
+1. **What the project is and who uses it** — one paragraph. What problem does it solve. Who actually uses it (real people, real sport, real context). Not a marketing summary.
+
+2. **The architecture** — how the system is actually built. Always include a Mermaid diagram. Name the main components, the data flow, the storage layer. Be specific about the stack. This is the section that makes a reader say "I understand what this is now."
+
+3. **Why these tech choices** — brief. What was considered, what was picked, and why. Even one honest tradeoff ("I chose Firestore because X, even though Y") is worth more than a list of logos.
+
+4. **What's been shipped so far** — concrete features or milestones. Not a roadmap bullet list — a short narrative of what actually works today. Draw from Reporter's `recent_features` and `summary` for this.
+
+5. **What's being worked on now** — 1–2 paragraphs. The current focus area from Reporter's `summary` and `session_context`. This bridges the intro post to the feature posts that will follow it.
+
+6. **Honest closing** — one short section. What building this has been like, what's hard, what's next. Practical, not inspirational.
+
+### Source material for intro mode
+
+- **Primary**: `projects.config.json` — `name`, `tone`, `skills_showcased`
+- **Primary**: README.md from the project repo (read the first 80 lines at `${project_path}/README.md`)
+- **Secondary**: Reporter JSON `summary`, `tech_signals`, `recent_features` — for current state context only, not as the narrative frame
+- **Voice**: same rules as always — first person, no em-dashes, no buzzwords, honest friction
 
 ### 6. Frontmatter
 
