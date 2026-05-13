@@ -78,6 +78,16 @@ Presents LinkedIn and X copy for review, revises on feedback, saves `<slug>.soci
 
 ### Approve and publish a draft
 
+After reviewing and editing the MDX:
+
+```
+/blog-pipeline:publish <slug>
+```
+
+The Deployer skill flips `published: true` (with confirmation), runs `npm run ingest`, commits with `publish: <title>`, updates `editorial_state.json`, and asks before pushing. Bails out cleanly if dimeglio.dev has unrelated uncommitted changes or ingest fails.
+
+Manual flow (if needed):
+
 1. Open the draft in `dimeglio.dev/content/blog/<slug>.mdx`
 2. Review and edit as needed
 3. Flip `published: false` → `published: true`
@@ -107,6 +117,7 @@ Presents LinkedIn and X copy for review, revises on feedback, saves `<slug>.soci
 | Rater | Haiku | Scores draft, checks voice rules, pass/fail gate (threshold 6.5) |
 | Publisher | Sonnet | Orchestrates Reporter → Writer → Rater, manages `editorial_state.json` |
 | Social Manager | Sonnet | Interactive LinkedIn + X copy — revises on feedback, saves on approval |
+| Deployer | Sonnet | Publishes an approved draft — flip `published`, ingest, commit, update state, push on confirm |
 
 ## State
 
