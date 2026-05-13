@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(find *)",
+      "Bash(python3 *)",
+      "Bash(curl *)",
+      "Bash(jq *)",
+      "Bash(grep *)",
+      "Bash(sed *)",
+      "Bash(awk *)",
+      "Bash(sips *)",
+      "Bash(mkdir *)",
+      "Bash(rm *)",
+      "Bash(cut *)",
+      "Bash(test *)",
+      "Bash(sort *)",
+      "Bash(wc *)",
+      "Bash(ls *)",
+      "Bash(gh *)",
+      "Read",
+      "Write"
+    ],
+    "additionalDirectories": [
+      "/Users/pablo/Development/dimeglio.dev",
+      "/Users/pablo/Development/paddle-games",
+      "/Users/pablo/Development/project-batcave"
+    ]
+  }
+}

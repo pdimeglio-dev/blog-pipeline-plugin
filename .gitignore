@@ -10,3 +10,6 @@
 .vscode/
 .idea/
 *.swp
+
+# Local settings overrides (personal, not shared)
+.claude/settings.local.json
