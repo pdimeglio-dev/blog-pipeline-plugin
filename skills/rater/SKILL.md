@@ -64,9 +64,35 @@ echo "<title>" | grep -iE "^How .+ Led to .+$|^How I Built .+$|^Why .+ Matters|^
 
 # Title contains em-dash or colon-subtitle pattern
 echo "<title>" | grep -E '—|.+:.+'
+
+# Insider roadmap labels — internal terms a reader has no context for
+echo "$BODY" | grep -iE 'phase [0-9]+|sprint [0-9]+|milestone [0-9]+|q[1-4] (roadmap|okr)|epic [a-z0-9-]+'
+
+# Unverified go-to-market language — claims that may not match the product's actual state
+echo "$BODY" | grep -iE 'waitlist|early access|join the beta|sign up for (early|beta)'
 ```
 
-Run each check. Collect any matches as entries in `voice_flags`, e.g. `"em-dash found (3 occurrences)"`, `"banned word: 'robust'"`, `"title matches 'How X Led to Y' formula"`.
+Also run this non-regex check to verify internal `/blog/<slug>` links resolve to published posts:
+
+```bash
+DIMEGLIO_DEV_PATH="/Users/pablo/Development/dimeglio.dev"
+
+# Extract all internal blog slugs linked in the body
+SLUGS=$(grep -oE '/blog/[a-z0-9-]+' <mdx_path> | sed 's|/blog/||' | sort -u)
+
+for SLUG in $SLUGS; do
+  TARGET="${DIMEGLIO_DEV_PATH}/content/blog/${SLUG}.mdx"
+  # Check 1: slug in the generated published list
+  if ! grep -q "\"${SLUG}\"" "${DIMEGLIO_DEV_PATH}/lib/generated-blog-slugs.ts" 2>/dev/null; then
+    echo "internal link to unpublished/missing post: ${SLUG}"
+  # Check 2: MDX frontmatter also says published: true
+  elif ! grep -q 'published: true' "$TARGET" 2>/dev/null; then
+    echo "internal link to unpublished post (frontmatter): ${SLUG}"
+  fi
+done
+```
+
+Run each check. Collect any matches as entries in `voice_flags`, e.g. `"em-dash found (3 occurrences)"`, `"banned word: 'robust'"`, `"title matches 'How X Led to Y' formula"`, `"internal link to unpublished post: 2026-05-11-strava-webhooks-were-eating-activities"`, `"insider roadmap label: 'Phase 4'"`, `"unverified go-to-market claim: 'waitlist'"`.  
 
 **Important**: actually run these grep commands using the Bash tool with the real file path. Do not eyeball the file and guess — the checks must be mechanical.
 
