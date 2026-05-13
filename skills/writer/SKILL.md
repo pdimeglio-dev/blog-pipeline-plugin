@@ -134,6 +134,11 @@ Generate slug:
 
 **No fabricated specifics**: Only include time estimates, durations, and counts that appear explicitly in `session_context` or the Reporter JSON fields. Do not invent them from inference ("took a few hours", "about two minutes", "spent an afternoon"). If you don't know how long something took, don't say how long it took. Fabricated specifics undermine the post's credibility and contradict what the author actually experienced.
 
+**Third-party platform framing**: If the project integrates with a third-party platform (Strava, Shopify, Slack, Apple Health, etc.) and the product exists because that platform didn't serve a specific community or use case, never frame this as the platform not caring, being deficient, or failing the user. The correct framing is: the platform is good and Pablo uses it; the product fills a gap for a specific community the platform wasn't built for. This matters because the product depends on that platform's API and community, and readers from that community will notice criticism. Check for this whenever `tech_signals` or `recent_features` reference a third-party platform as the source of data, activities, or auth (e.g. Strava OAuth, Shopify webhooks).
+
+  Bad: "Strava doesn't care about paddle sports, so I built my own." 
+  Good: "Strava is great for running and cycling. I paddle, and there wasn't much there for the SUP racing community, so I built The Paddle Games."
+
 **Voice tells to match** (from `tone` in project config + AGENTS.md required patterns):
 - Contractions, fragments, parenthetical asides.
 - Imperfect transitions: "Anyway,", "So,", "The other thing was…"
@@ -179,6 +184,7 @@ Generate slug:
 - No insider roadmap labels in user-facing prose. Scan the full draft for "Phase [N]", "Sprint [N]", "Milestone [N]", "Q[1-4] roadmap", "Q[1-4] OKR", "Epic [name]". A reader has no idea what "Phase 4 of the spatial challenge roadmap" means. Replace with the user-visible capability: "spatial challenge notifications" or "race timing" — whatever the phase actually delivers.
 - No invented go-to-market language. Match the body's status claims to `goToMarketState` in the project config. If `live`: don't say "waitlist", "early access", "beta", "join the waitlist", or "coming soon". If `waitlist-open`: you may say "join the waitlist" but not "live". If absent or unknown: omit go-to-market claims entirely.
 - UX surface phrasing must match `surface`. If `web`: replace "open the app", "in the app", "download the app" with "visit the site", "browse to", "in the browser". If `mobile-ios` or `mobile-android`: replace "visit the URL" with "open the app". If `cli`: replace "in the browser" with "in the terminal".
+- Third-party platform framing: if the post integrates with a platform like Strava, Shopify, or Slack, scan for any sentence that frames it as not caring, deficient, or failing. Reframe as: the platform is good; the product serves a specific community or use case the platform wasn't built for.
 
 If any sentence sounds like a Medium article or a marketing case study, rewrite it.
 
@@ -287,6 +293,20 @@ If either check fails, the target is unpublished or missing. **Remove the link e
 If `liveUrl` is set in the project config AND the draft body contains any of: "live", "running in production", "visit", "use it at", "try it", "thepaddlegames.com" (or whatever the product domain is) — verify the `liveUrl` appears as a clickable markdown link somewhere in the body. If it doesn't, add it near the first such claim. Format: `[The Paddle Games](https://www.thepaddlegames.com/)`.
 
 If `liveUrl` is not set in the project config, skip this check.
+
+**Direct CTA — require an active invitation when `goToMarketState` is `live`.**
+
+If `goToMarketState` is `live` AND `liveUrl` is set: the closing section must include a direct invitation to join or try the product. A passive mention of the URL does not satisfy this rule.
+
+The invitation must:
+- Name the action the reader takes (connect Strava, sign up, join, try it)
+- Name who it's for — if the product is community-specific, name that community explicitly
+- Include `liveUrl` as a clickable link in or near the invitation
+
+Bad (passive): `The app is live at [thepaddlegames.com](https://www.thepaddlegames.com/).`
+Good (direct): `If you paddle (SUP, kayak, canoe, surf, row — anything with water), connect your Strava account and join at [thepaddlegames.com](https://www.thepaddlegames.com/).`
+
+If the closing section doesn't have an explicit invitation, add one before the closing footer.
 
 **Social handles — include in intro posts and project-launch posts.**
 
