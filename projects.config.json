@@ -18,7 +18,8 @@
         "accent_secondary": "#22d3ee",
         "accent_tertiary": "#FC4C02",
         "style_keywords": "wave forms, kinetic energy, water dynamics, sports tech",
-        "mood": "energetic, competitive, fluid"
+        "mood": "energetic, competitive, fluid",
+        "logo_path": "~/Development/paddle-games/public/the-paddle-games-logo.png"
       }
     },
     {
