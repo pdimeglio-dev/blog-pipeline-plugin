@@ -76,6 +76,22 @@ After reviewing a draft and deciding to publish it:
 
 Presents LinkedIn and X copy for review, revises on feedback, saves `<slug>.social.json` next to the MDX when approved.
 
+### Regenerate the cover image
+
+If the cover came out wrong, regenerate it without re-running the post:
+
+```
+/blog-pipeline:cover <slug>
+```
+
+Or with extra prompt direction:
+
+```
+/blog-pipeline:cover <slug> "more abstract data flow imagery"
+```
+
+Overwrites `public/blog/<slug>/cover.jpg`. Does not touch the MDX.
+
 ### Revise a draft
 
 To re-rate a draft after editing (no side effects):
@@ -134,6 +150,7 @@ Manual flow (if needed):
 | Publisher | Sonnet | Orchestrates Reporter → Writer → Rater, manages `editorial_state.json` |
 | Social Manager | Sonnet | Interactive LinkedIn + X copy — revises on feedback, saves on approval |
 | Rewriter | Sonnet | Interactive revision of an existing draft — applies targeted edits, runs Writer self-check |
+| Cover Regenerator | Sonnet | Re-runs DALL-E cover generation + logo compositing for an existing post |
 | Deployer | Sonnet | Publishes an approved draft — flip `published`, ingest, commit, update state, push on confirm |
 
 ## State
