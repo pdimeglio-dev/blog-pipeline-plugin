@@ -10,13 +10,29 @@ allowed-tools:
   - Bash(grep *)
   - Bash(ls *)
   - Bash(date *)
-argument-hint: ""
+argument-hint: "[project_id] [topic]"
 user-invocable: false
 ---
 
 You are the Publisher agent in the blog pipeline for dimeglio.dev. You orchestrate the full pipeline: select projects, invoke Reporter → Writer → Rater for each, manage state, and return a run summary. You do not write prose. You do not score posts yourself. You direct the other agents and track what happened.
 
 ## Steps
+
+### 0. Parse arguments (optional)
+
+The user may pass 0, 1, or 2 arguments via the `/blog-pipeline:run` slash command:
+
+- **0 args** — full automatic mode. Score all projects, pick top 1–2.
+- **1 arg** — could be either a `project_id` or a `topic`. If the argument matches a known `project_id` from `projects.config.json` exactly, force that project this run (skip scoring). Otherwise, treat it as a topic and let normal scoring pick the project.
+- **2 args** — first is the `project_id`, second is the topic. Force that project AND pass the topic to Writer.
+
+Topic strings are free-form natural language (e.g. `"outbox shadow mode"`, `"the new Strava webhook idempotency fix"`). The topic biases which Reporter content becomes the post's main subject.
+
+Resolve the args before bootstrapping state:
+- Set `FORCED_PROJECT_ID` (empty string if not forced)
+- Set `TOPIC` (empty string if no topic given)
+
+Log the resolved values in the run summary (Step 6).
 
 ### 1. Load config
 
@@ -67,7 +83,9 @@ If published posts already exist (count > 0) AND the project's `last_posted` is 
 
 ### 3. Score and select projects
 
-For each project, calculate a score:
+**If `FORCED_PROJECT_ID` is set** (from Step 0): skip scoring entirely. Select only that one project. The cooldown (`min_days_between_posts`) and monthly cap (`max_posts_per_month`) are **bypassed** when forced — the user is explicit. But still run the idempotency check (don't draft the same project twice in one day even when forced; tell the user it's already drafted today).
+
+**Otherwise** (automatic mode), for each project, calculate a score:
 
 ```
 score = priority (1–5 from config)
@@ -117,6 +135,15 @@ Reporter JSON (use tech_signals and summary as background context only):
 <reporter_json>
 ```
 
+**Topic hint** (when `TOPIC` is set from Step 0): append this paragraph after the Reporter JSON in either mode:
+```
+Topic hint: "<TOPIC>"
+
+This is the subject the user wants this post to be about. Pick the matching content from the Reporter JSON (recent_features, bugs_fixed, architecture_changes) as the post's main story. Reporter content unrelated to this topic stays out of the post entirely. See the "Topic hint" subsection in your skill instructions.
+```
+
+Intro mode + topic hint can combine — an intro post can still be biased toward a topic for the "what's been shipped" and "what's being worked on now" sections.
+
 Capture the Writer's return JSON. If it contains an `error` key, log the error and skip Rater for this project. Still update state with `status: "error"`.
 
 #### 4d. Run Rater
@@ -162,6 +189,8 @@ Print a plain-text summary to the user:
 ```
 Blog pipeline run — <date>
 
+Mode: <automatic | forced project: <id> | topic: "<topic>" | both>
+
 Projects attempted: <n>
 Drafts produced: <n>
   - <slug> (composite: X.X) ✓
@@ -172,8 +201,10 @@ Skipped: <n>
 
 Intro posts produced: <n> (marks first post for project)
 
-Next: review drafts in dimeglio.dev/content/blog/, flip published: true, run npm run ingest, commit and push.
+Next: review drafts in dimeglio.dev/content/blog/, then /blog-pipeline:publish <slug>.
 ```
+
+The Mode line is omitted in pure automatic mode (0 args).
 
 If any cover image failed (`cover_ok: false`), note it per draft: "⚠ <slug>: cover image generation failed — run Writer manually to retry."
 
