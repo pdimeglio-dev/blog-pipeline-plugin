@@ -66,6 +66,12 @@ Note: `image_theme` may include:
 - An optional `accent_tertiary` color — include it in the image prompt if present (see Step 8).
 - An optional `logo_path` — path to the project's logo PNG, used for compositing after image generation (see Step 8). Expand `~` to the actual home directory.
 
+Also extract these optional top-level project fields (used in Step 6a accuracy checks):
+- `liveUrl` — canonical URL the product runs at (e.g. `"https://www.thepaddlegames.com/"`). Must appear as a clickable link in the body whenever the post claims the product is live or running in production.
+- `goToMarketState` — one of: `live`, `private-beta`, `waitlist-open`, `coming-soon`, `internal-only`. Drives what go-to-market language is allowed in the body.
+- `surface` — one of: `web`, `mobile-ios`, `mobile-android`, `cli`, `desktop`. Used to validate UX phrasing.
+- `social` — object with optional keys `instagram`, `x`, `linkedin`, `github`. Handle values are raw strings like `"@the.paddle.games"`. For intro posts and project-launch posts, include at least one handle in the closing paragraph.
+
 ### 3. Read voice rules fresh
 
 Read `${dimeglio_dev_path}/AGENTS.md`. Locate the section between `<!-- BEGIN:blog-voice-rules -->` and `<!-- END:blog-voice-rules -->`. Extract the **banned patterns** list and the **required patterns** list. Apply them when drafting. Do not paraphrase the rules into the skill — read them fresh every run, because they change.
@@ -170,6 +176,9 @@ Generate slug:
 - No `## PR 1`, `## Step 1`, `## Day 1` headings. Sections are concepts, not chronology. (Note: an inline list of phases inside a section, with bold labels like `**PR 1** — ...`, is also forbidden as a structural device.)
 - No secondary bugs or unrelated issues included. The Reporter JSON may have multiple bugs_fixed and recent_features. Only those directly relevant to the post's single main topic appear in the draft. Everything else is omitted.
 - No fabricated time estimates or durations. If a specific time ("took 40 minutes", "spent an afternoon", "a week of work") doesn't appear verbatim in session_context or the Reporter JSON, do not write it.
+- No insider roadmap labels in user-facing prose. Scan the full draft for "Phase [N]", "Sprint [N]", "Milestone [N]", "Q[1-4] roadmap", "Q[1-4] OKR", "Epic [name]". A reader has no idea what "Phase 4 of the spatial challenge roadmap" means. Replace with the user-visible capability: "spatial challenge notifications" or "race timing" — whatever the phase actually delivers.
+- No invented go-to-market language. Match the body's status claims to `goToMarketState` in the project config. If `live`: don't say "waitlist", "early access", "beta", "join the waitlist", or "coming soon". If `waitlist-open`: you may say "join the waitlist" but not "live". If absent or unknown: omit go-to-market claims entirely.
+- UX surface phrasing must match `surface`. If `web`: replace "open the app", "in the app", "download the app" with "visit the site", "browse to", "in the browser". If `mobile-ios` or `mobile-android`: replace "visit the URL" with "open the app". If `cli`: replace "in the browser" with "in the terminal".
 
 If any sentence sounds like a Medium article or a marketing case study, rewrite it.
 
@@ -248,6 +257,40 @@ published: false
 - `coverImage` — exactly `/blog/<slug>/cover.jpg`. The Writer always writes this even if image gen fails (Publisher decides what to do).
 - `coverAlt` — describes the abstract image you're about to generate (matches the `image_theme` + prompt). One sentence, no marketing words.
 - `published` — always `false`. A human flips this after review.
+
+### 6a. Pre-write accuracy checks
+
+Run these before writing the file. They catch factual errors that the prose self-check can't see.
+
+**Internal blog links — verify all targets are published.**
+
+Extract every internal slug reference from the draft body:
+
+```bash
+grep -oE '/blog/[a-z0-9-]+' <draft_body> | sed 's|/blog/||'
+```
+
+For each slug, run two checks:
+
+```bash
+# Check 1: slug appears in the published list
+grep -q '"<slug>"' "${dimeglio_dev_path}/lib/generated-blog-slugs.ts"
+
+# Check 2: MDX file exists and frontmatter says published: true
+grep -q 'published: true' "${dimeglio_dev_path}/content/blog/<slug>.mdx" 2>/dev/null
+```
+
+If either check fails, the target is unpublished or missing. **Remove the link entirely** — do not replace with a dead link. Use prose instead: "a follow-up post coming soon" or simply drop the reference. A live post must never link to a draft (readers get a 404).
+
+**Live product link — require `liveUrl` when claiming the product is live.**
+
+If `liveUrl` is set in the project config AND the draft body contains any of: "live", "running in production", "visit", "use it at", "try it", "thepaddlegames.com" (or whatever the product domain is) — verify the `liveUrl` appears as a clickable markdown link somewhere in the body. If it doesn't, add it near the first such claim. Format: `[The Paddle Games](https://www.thepaddlegames.com/)`.
+
+If `liveUrl` is not set in the project config, skip this check.
+
+**Social handles — include in intro posts and project-launch posts.**
+
+If the project config has a non-empty `social` object AND this is either an intro post ("FIRST post for this project") or the first paragraph claims the product is live: include at least one handle in the closing section. Format: "Follow along at [@the.paddle.games](https://instagram.com/the.paddle.games) on Instagram." (Derive the full URL from the handle: `@handle` → `https://instagram.com/handle` for Instagram, `https://x.com/handle` for X.) For regular feature posts, omit social handles unless they're directly relevant to the topic.
 
 ### 7. Write the MDX file
 

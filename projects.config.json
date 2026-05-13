@@ -12,6 +12,12 @@
       "min_days_between_posts": 5,
       "max_posts_per_month": 4,
       "priority": 5,
+      "liveUrl": "https://www.thepaddlegames.com/",
+      "goToMarketState": "live",
+      "surface": "web",
+      "social": {
+        "instagram": "@the.paddle.games"
+      },
       "image_theme": {
         "background": "#000000",
         "accent_primary": "#84cc16",
@@ -33,6 +39,13 @@
       "min_days_between_posts": 7,
       "max_posts_per_month": 3,
       "priority": 3,
+      "liveUrl": "https://dimeglio.dev/",
+      "goToMarketState": "live",
+      "surface": "web",
+      "social": {
+        "linkedin": "https://www.linkedin.com/in/pdimeglio/",
+        "github": "https://github.com/pdimeglio-dev"
+      },
       "image_theme": {
         "background": "#000000",
         "accent_primary": "#a855f7",
