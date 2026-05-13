@@ -7,6 +7,7 @@ allowed-tools:
   - Write
   - Bash(find *)
   - Bash(grep *)
+  - Bash(cut *)
 argument-hint: "<mdx_path>"
 user-invocable: true
 ---
@@ -36,6 +37,17 @@ Identify the post's **main story**: the central problem, what was built or fixed
 
 Also identify 2–4 **supporting insights** — concrete technical details or tradeoffs that would interest an engineering audience (e.g. the lease transaction, the shadow-mode rollout, the monitoring alert). These become the body of the thread on X.
 
+### 1b. Identify project and load social handles
+
+Read `${PLUGIN_ROOT}/projects.config.json` (default: `/Users/pablo/Development/blog-pipeline-plugin/projects.config.json`). Find the project whose `skills_showcased` array has the most overlap with the post's `tags`. If no tags overlap, try matching by checking if any project's `liveUrl` domain appears in the post body.
+
+Extract from the matching project entry (all optional — skip gracefully if absent):
+- `social` — object with handles (`instagram`, `x`, `linkedin`, `github`)
+- `liveUrl` — canonical product URL
+- `surface` — `web | mobile-ios | mobile-android | cli | desktop`
+
+These are used in Step 2 (LinkedIn link line) and Step 3 (X final tweet). If no project matches or the project has no `social` object, proceed without handles.
+
 ### 2. Write LinkedIn copy
 
 **Voice rules** (apply these strictly):
@@ -51,7 +63,7 @@ Also identify 2–4 **supporting insights** — concrete technical details or tr
 1. **Hook (1–2 sentences)** — The problem or situation that started everything. Concrete, specific, not abstract. Should make an engineer want to read the next sentence.
 2. **What happened (3–5 sentences)** — The core of what was built or fixed, and why it mattered. Name the pattern, the tool, or the approach. Be specific enough that someone who hasn't read the post learns something.
 3. **The honest part (1–2 sentences)** — What was hard, what was learned, what would be done differently. This is what makes LinkedIn posts feel human instead of promotional.
-4. **Link line** — One sentence: "Full post → dimeglio.dev/blog/<slug>"
+4. **Link line** — "Full post → dimeglio.dev/blog/<slug>". If the project has a `social.instagram` or `social.x` handle, append it on the same line or the next: e.g. "Full post → dimeglio.dev/blog/<slug> | @the.paddle.games on Instagram" or as a standalone short line. Keep it light — one handle max, only if it's genuinely the project's own account.
 5. **Question** — One genuine question directed at engineers who work on similar problems. Specific to the post's topic. Examples: "Anyone dealt with Strava's retry behavior on duplicate webhooks?" / "Curious how others handle the outbox-vs-message-queue decision at small scale." Not: "What do you think?" or "Have you experienced this?"
 
 **Length**: 150–250 words. Count carefully. Under 150 feels thin. Over 250 loses LinkedIn readers.
@@ -76,7 +88,7 @@ First, count the **supporting insights** you identified in Step 1. If 0–1, wri
 **Thread** (when 2+ supporting insights):
 - **Tweet 1 (hook)**: The sharpest sentence from the whole post. A problem, a finding, a counterintuitive detail. Max 240 chars.
 - **Tweets 2–N (body)**: One supporting insight per tweet. Name the thing — pattern, error, tool, tradeoff. Short, concrete. Max 280 chars each.
-- **Final tweet**: The link + one-sentence practical takeaway or open question. Format: `<takeaway or question> → <link>`
+- **Final tweet**: The link + one-sentence practical takeaway or open question. Format: `<takeaway or question> → <link>`. If the project has a `social.x` handle, append it: `<takeaway> → <link> @handle`. If only `social.instagram` is available, skip the handle in X copy (cross-platform tagging is awkward).
 
 **Thread length**: 3 tweets minimum, 6 maximum. More than 6 — combine or cut.
 
@@ -123,7 +135,8 @@ Once approved, write to: same directory as the MDX file, named `<slug>.social.js
   "slug": "2026-05-11-strava-webhooks-were-eating-activities",
   "title": "Strava Webhooks Were Eating Activities",
   "post_url": "https://dimeglio.dev/blog/2026-05-11-strava-webhooks-were-eating-activities",
-  "generated_at": "2026-05-12",
+  "generated_at": "2026-05-13",
+  "project_social": { "instagram": "@the.paddle.games" },
   "linkedin": {
     "body": "Full LinkedIn copy here, \\n\\n between paragraphs.",
     "word_count": 187
@@ -138,5 +151,7 @@ Once approved, write to: same directory as the MDX file, named `<slug>.social.js
   }
 }
 ```
+
+`project_social` is omitted from the JSON if no matching project was found or the project has no `social` object.
 
 Confirm with: `Saved to <path>.`
