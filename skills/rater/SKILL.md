@@ -5,6 +5,11 @@ model: haiku
 allowed-tools:
   - Read
   - Bash(grep *)
+  - Bash(awk *)
+  - Bash(sed *)
+  - Bash(wc *)
+  - Bash(head *)
+  - Bash(tail *)
 argument-hint: "<mdx_path>"
 user-invocable: true
 ---
@@ -28,6 +33,7 @@ If invoked by the Publisher, the path is embedded in the prompt.
 Read the full MDX file at the given path. Extract:
 - `title` from frontmatter
 - `description` from frontmatter
+- `tags` from frontmatter (array) — used to match the post to a project in Step 2b
 - `slug` — the filename without `.mdx`
 - Full body text (everything after the second `---`)
 
@@ -38,6 +44,17 @@ Read `/Users/pablo/Development/dimeglio.dev/AGENTS.md`. Locate the section betwe
 - **Required patterns** — open with friction, show friction, imperfect transitions, first person, specific details, honest ending
 
 Do not use cached or paraphrased versions of these rules — read the file every run.
+
+### 2b. Match the post to a project (for CTA check)
+
+Read `/Users/pablo/Development/blog-pipeline-plugin/projects.config.json`. For each project entry, count how many of its `skills_showcased` strings appear in the post's `tags` array (case-insensitive). Pick the project with the highest overlap. If no project has any overlap, fall back to scanning the post body for any project's `liveUrl` domain — match the first project whose domain appears.
+
+If still no match, skip the CTA check in Step 3 (it can't run without a project). The other Step 3 checks always run.
+
+From the matched project, extract these optional fields:
+- `liveUrl` — canonical product URL
+- `goToMarketState` — `live | private-beta | waitlist-open | coming-soon | internal-only`
+- `social` — handle object (informational only; not enforced here)
 
 ### 3. Regex pre-check (deterministic — any match = automatic fail)
 
@@ -70,6 +87,10 @@ echo "$BODY" | grep -iE 'phase [0-9]+|sprint [0-9]+|milestone [0-9]+|q[1-4] (roa
 
 # Unverified go-to-market language — claims that may not match the product's actual state
 echo "$BODY" | grep -iE 'waitlist|early access|join the beta|sign up for (early|beta)'
+
+# Third-party platform criticism — never frame an integrated platform as deficient
+echo "$BODY" | grep -iE "(strava|shopify|slack|stripe|github|apple health|google fit|notion|substack|airbnb).{0,80}(doesn't care|doesn't support|isn't built for|isn't interested in|fails to|neglected|abandoned|gave up on)"
+echo "$BODY" | grep -iE "(doesn't care about|doesn't support|isn't built for|isn't interested in).{0,80}(strava|shopify|slack|stripe|github|apple health|google fit|notion|substack|airbnb)"
 ```
 
 Also run this non-regex check to verify internal `/blog/<slug>` links resolve to published posts:
@@ -92,7 +113,34 @@ for SLUG in $SLUGS; do
 done
 ```
 
-Run each check. Collect any matches as entries in `voice_flags`, e.g. `"em-dash found (3 occurrences)"`, `"banned word: 'robust'"`, `"title matches 'How X Led to Y' formula"`, `"internal link to unpublished post: 2026-05-11-strava-webhooks-were-eating-activities"`, `"insider roadmap label: 'Phase 4'"`, `"unverified go-to-market claim: 'waitlist'"`.  
+**Missing CTA check — only runs when the matched project (Step 2b) has `goToMarketState: "live"` AND `liveUrl` set.**
+
+When the product is live, the closing must invite the reader to take action — a passive URL mention does not satisfy the rule. The check has two parts: (1) the `liveUrl` (or its host) must appear in the closing section, and (2) an invitation verb must also appear in the closing section.
+
+```bash
+# Compute the closing section — last 30% of body lines
+TOTAL_LINES=$(echo "$BODY" | wc -l)
+CLOSING_LINES=$(( TOTAL_LINES * 30 / 100 ))
+[ "$CLOSING_LINES" -lt 5 ] && CLOSING_LINES=5
+CLOSING=$(echo "$BODY" | tail -n "$CLOSING_LINES")
+
+# Tolerant host extraction (handles http/https, trailing slash)
+LIVE_HOST=$(echo "$LIVE_URL" | sed -E 's|^https?://||; s|/$||')
+
+# 1. Does the closing reference the live URL or host?
+HAS_URL=$(echo "$CLOSING" | grep -cE "${LIVE_HOST}" || true)
+
+# 2. Does the closing contain any invitation verb?
+HAS_VERB=$(echo "$CLOSING" | grep -ciE 'connect|sign up|signup|join|try it|get started|use it|paddle with|paddle along' || true)
+```
+
+Flags:
+- If `HAS_URL == 0` (when `goToMarketState=live`): flag `"missing liveUrl in closing — product is live but URL absent from closing section"`.
+- If `HAS_URL > 0` AND `HAS_VERB == 0`: flag `"missing explicit CTA — product is live, URL is in closing but no invitation verb (connect/join/sign up/try)"`.
+
+Both flags can fire on the same post if both conditions are met.
+
+Run each check. Collect any matches as entries in `voice_flags`, e.g. `"em-dash found (3 occurrences)"`, `"banned word: 'robust'"`, `"title matches 'How X Led to Y' formula"`, `"internal link to unpublished post: 2026-05-11-strava-webhooks-were-eating-activities"`, `"insider roadmap label: 'Phase 4'"`, `"unverified go-to-market claim: 'waitlist'"`, `"third-party platform criticism: 'Strava doesn't care about paddle sports'"`, `"missing explicit CTA — product is live but closing lacks invitation"`.  
 
 **Important**: actually run these grep commands using the Bash tool with the real file path. Do not eyeball the file and guess — the checks must be mechanical.
 
