@@ -76,6 +76,22 @@ After reviewing a draft and deciding to publish it:
 
 Presents LinkedIn and X copy for review, revises on feedback, saves `<slug>.social.json` next to the MDX when approved.
 
+### Revise a draft
+
+To re-rate a draft after editing (no side effects):
+
+```
+/blog-pipeline:rerate <slug>
+```
+
+To interactively revise a draft (Rewriter prompts you, applies edits, validates, saves on approval):
+
+```
+/blog-pipeline:rewrite <slug>
+```
+
+The Rewriter applies targeted edits to the section(s) you name, runs the same self-check the Writer uses (zero em-dashes, no banned words, no AI prose patterns), and only saves the file when you approve.
+
 ### Approve and publish a draft
 
 After reviewing and editing the MDX:
@@ -117,6 +133,7 @@ Manual flow (if needed):
 | Rater | Haiku | Scores draft, checks voice rules, pass/fail gate (threshold 6.5) |
 | Publisher | Sonnet | Orchestrates Reporter → Writer → Rater, manages `editorial_state.json` |
 | Social Manager | Sonnet | Interactive LinkedIn + X copy — revises on feedback, saves on approval |
+| Rewriter | Sonnet | Interactive revision of an existing draft — applies targeted edits, runs Writer self-check |
 | Deployer | Sonnet | Publishes an approved draft — flip `published`, ingest, commit, update state, push on confirm |
 
 ## State
