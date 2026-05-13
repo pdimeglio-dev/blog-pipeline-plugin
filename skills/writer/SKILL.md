@@ -96,6 +96,8 @@ Generate slug:
 
 ### 5. Write the MDX body
 
+**Topic hint**: if the Publisher's prompt contains a line `Topic hint: "<topic>"`, that string is the post's subject. Pick the matching content from the Reporter JSON (`recent_features`, `bugs_fixed`, `architecture_changes`) as the main story for this post. Reporter content unrelated to the topic stays out entirely — the topic hint is a single-topic filter on top of the existing single-topic rule. If the topic isn't a clear match for anything in the Reporter JSON, use it as the *framing* (the angle from which to discuss whatever is most relevant), but don't fabricate work that isn't there. In intro mode, the topic hint biases the "what's been shipped" and "what's being worked on now" sections; the project overview structure still applies.
+
 **Length**: **1200–2000 words**, targeting ~1600. Existing posts average ~1600. Under 1000 feels thin; over 2200 loses readers. Word count is non-negotiable — if you write a 700-word draft, you have not finished. Existing posts hit length by exploring the problem deeply, walking through architecture decisions, and including a meaningful wrinkle/postmortem section.
 
 **Structure** — mirror the structure of existing posts on the site:
