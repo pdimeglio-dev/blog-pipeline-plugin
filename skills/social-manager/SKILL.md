@@ -63,8 +63,9 @@ These are used in Step 2 (LinkedIn link line) and Step 3 (X final tweet). If no 
 1. **Hook (1–2 sentences)** — The problem or situation that started everything. Concrete, specific, not abstract. Should make an engineer want to read the next sentence.
 2. **What happened (3–5 sentences)** — The core of what was built or fixed, and why it mattered. Name the pattern, the tool, or the approach. Be specific enough that someone who hasn't read the post learns something.
 3. **The honest part (1–2 sentences)** — What was hard, what was learned, what would be done differently. This is what makes LinkedIn posts feel human instead of promotional.
-4. **Link line** — "Full post → dimeglio.dev/blog/<slug>". If the project has a `social.instagram` or `social.x` handle, append it on the same line or the next: e.g. "Full post → dimeglio.dev/blog/<slug> | @the.paddle.games on Instagram" or as a standalone short line. Keep it light — one handle max, only if it's genuinely the project's own account.
-5. **Question** — One genuine question directed at engineers who work on similar problems. Specific to the post's topic. Examples: "Anyone dealt with Strava's retry behavior on duplicate webhooks?" / "Curious how others handle the outbox-vs-message-queue decision at small scale." Not: "What do you think?" or "Have you experienced this?"
+4. **CTA (when `goToMarketState` is `live`)** — If the project config has `goToMarketState: "live"` and a `liveUrl`, include an explicit invitation to join or try the product before the link line. Name the community or sport types if the product targets a specific one (derive from `tone` or `skills_showcased` in project config — e.g. "SUP, kayak, canoe, surf, row" for a paddle sports app). The invitation should name the action: "connect your Strava account and join", "sign up", "try it". A passive "the app is live at X" does not satisfy this — it must be a direct invitation. Example: "If you paddle (SUP, kayak, canoe, surf, row, anything), connect your Strava account and join at thepaddlegames.com."
+5. **Link line** — "Full post → dimeglio.dev/blog/<slug>". If the project has a `social.instagram` or `social.x` handle, always append it: "Full post → dimeglio.dev/blog/<slug> | @handle on Instagram". This is not optional when a handle exists — include it every time.
+6. **Question** — One genuine question directed at engineers who work on similar problems. Specific to the post's topic. Examples: "Anyone dealt with Strava's retry behavior on duplicate webhooks?" / "Curious how others handle the outbox-vs-message-queue decision at small scale." Not: "What do you think?" or "Have you experienced this?"
 
 **Length**: 150–250 words. Count carefully. Under 150 feels thin. Over 250 loses LinkedIn readers.
 
@@ -88,7 +89,8 @@ First, count the **supporting insights** you identified in Step 1. If 0–1, wri
 **Thread** (when 2+ supporting insights):
 - **Tweet 1 (hook)**: The sharpest sentence from the whole post. A problem, a finding, a counterintuitive detail. Max 240 chars.
 - **Tweets 2–N (body)**: One supporting insight per tweet. Name the thing — pattern, error, tool, tradeoff. Short, concrete. Max 280 chars each.
-- **Final tweet**: The link + one-sentence practical takeaway or open question. Format: `<takeaway or question> → <link>`. If the project has a `social.x` handle, append it: `<takeaway> → <link> @handle`. If only `social.instagram` is available, skip the handle in X copy (cross-platform tagging is awkward).
+- **Final tweet**: The link + one-sentence practical takeaway or open question. Format: `<takeaway or question> → <link>`. If the project has a `social.x` handle, append it: `<takeaway> → <link> @handle`. If only `social.instagram` is available, include it anyway: `<takeaway> → <link> | @handle on Instagram`. Cross-platform handles are fine when it's the project's own account.
+- **CTA tweet (when `goToMarketState` is `live`)** — If the project is live, add a dedicated CTA as the final tweet (shifting the takeaway/link tweet to second-to-last if needed, keeping total under 6). Name the community or sport types explicitly. Example: "If you SUP, kayak, canoe, surf, or row, connect your Strava account and join. Architecture overview → <link> | @handle on Instagram". This makes the thread end with both an honest reflection AND an invitation.
 
 **Thread length**: 3 tweets minimum, 6 maximum. More than 6 — combine or cut.
 
@@ -98,9 +100,17 @@ Print the drafts clearly in this format:
 
 ```
 ─────────────────────────────────────
-LINKEDIN (N words)
+LINKEDIN (N words — N paragraphs)
 ─────────────────────────────────────
-<full linkedin copy>
+1. <hook paragraph>
+
+2. <what happened paragraph>
+
+3. <honest part paragraph>
+
+4. <link line>
+
+5. <closing question>
 
 ─────────────────────────────────────
 X (<type> — N tweets)
@@ -138,7 +148,13 @@ Once approved, write to: same directory as the MDX file, named `<slug>.social.js
   "generated_at": "2026-05-13",
   "project_social": { "instagram": "@the.paddle.games" },
   "linkedin": {
-    "body": "Full LinkedIn copy here, \\n\\n between paragraphs.",
+    "paragraphs": [
+      "Hook sentence — the opening 1–2 sentences.",
+      "What happened — 3–5 sentences on what was built or fixed.",
+      "The honest part — 1–2 sentences on what was hard or learned.",
+      "Full post → dimeglio.dev/blog/<slug> | @the.paddle.games on Instagram",
+      "Closing question directed at engineers?"
+    ],
     "word_count": 187
   },
   "x": {
@@ -151,6 +167,8 @@ Once approved, write to: same directory as the MDX file, named `<slug>.social.js
   }
 }
 ```
+
+LinkedIn `paragraphs` is an array of strings — one entry per paragraph — so you can copy each paragraph individually without dealing with `\n\n` escape sequences in the raw JSON. Paste them into LinkedIn in order with a blank line between each.
 
 `project_social` is omitted from the JSON if no matching project was found or the project has no `social` object.
 
