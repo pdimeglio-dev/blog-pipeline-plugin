@@ -26,6 +26,7 @@
       "Bash(npm *)",
       "Bash(node *)",
       "Bash(date *)",
+      "Bash(command *)",
       "Read",
       "Write",
       "Edit"
@@ -33,7 +34,8 @@
     "additionalDirectories": [
       "/Users/pablo/Development/dimeglio.dev",
       "/Users/pablo/Development/paddle-games",
-      "/Users/pablo/Development/project-batcave"
+      "/Users/pablo/Development/project-batcave",
+      "/Users/pablo/.claude"
     ]
   }
 }
