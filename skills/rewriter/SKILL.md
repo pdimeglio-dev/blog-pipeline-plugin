@@ -107,6 +107,10 @@ Use the Edit tool for targeted changes (a heading, a paragraph). Use Write for a
 - **No invented go-to-market language**: don't add "waitlist", "early access", "beta" unless the user explicitly asks.
 - **No fabricated specifics**: don't invent time estimates ("took 40 minutes", "spent an afternoon") that weren't in the original.
 - **Third-party platform framing**: never frame integrated platforms (Strava, Shopify, Slack, etc.) as deficient. If the user asks for criticism of a platform, push back and propose the "I love X, it just wasn't built for this community" framing instead.
+- **No audience-naming / job-search framing**: never name the recruiter or hiring manager as the audience inside the post. Banned phrases: "job-search use case", "recruiter or hiring manager", "land an interview", "hire this person", "to a recruiter", "to a hiring manager". Describe the system on its own merits.
+- **Precise terminology for lightweight artifacts**: when the post is about a plugin/skill system, prefer "skills", "subagents", "commands" over "agents" when the underlying objects are markdown files. "Eight skills wired together" reads honest; "eight agents" oversells.
+- **No speed-as-headline**: don't keep "N days from nothing" as a section opener or marquee phrase. Reframe so duration is in service of an engineering point, not the brag.
+- **Closings must land**: if the user asks for a closing edit, the result must include a specific insight, lesson, concrete next thing, or memorable phrase. "Look at the code on GitHub" as the load-bearing closing sentence is forgettable — push back or propose a stronger replacement.
 
 ### 7. Run the self-check on the revised body
 
@@ -125,6 +129,14 @@ echo "$BODY" | grep -iE 'force multiplier|game.changer|paradigm shift|revolution
 # Roadmap labels
 echo "$BODY" | grep -iE 'phase [0-9]+|sprint [0-9]+|milestone [0-9]+|q[1-4] (roadmap|okr)' \
   && echo "WARNING: insider roadmap label in revised body"
+
+# Audience-naming / job-search framing
+echo "$BODY" | grep -iE "job.search use case|recruiter or hiring manager|land an interview|hire this person|to a recruiter|to a hiring manager|for the job.search" \
+  && echo "WARNING: audience-naming / job-search framing in revised body"
+
+# Speed-as-marquee-number — leading with duration as the headline
+echo "$BODY" | grep -iE "^[A-Z][a-z]+ days from nothing|^[0-9]+ days from nothing|in (just |only )?[0-9]+ days[,.]| built in a weekend[,.]" \
+  && echo "WARNING: speed-as-marquee-number framing in revised body"
 ```
 
 If any warning fires, **fix it before presenting** — don't ask the user to re-flag what the Writer would have caught.

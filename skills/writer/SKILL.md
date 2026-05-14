@@ -122,6 +122,8 @@ Generate slug:
 
 10. **Closing `## ` section** — Practical and honest. Name it something concrete ("The honest takeaway", "What I'd tell someone evaluating X", "The stack", "What's next"). Numbered list of 2–3 lessons works well. Never inspirational. Never a mic drop.
 
+    **The closing must land.** It must include at least one of: a specific insight, a non-obvious lesson, a concrete next thing, or a memorable phrase. "Look at the code if you want", "the source is on GitHub" as the load-bearing closing sentence is forgettable. The closing footer (the italic credit line after `---`) does not satisfy this — the body of the closing section itself must carry the weight. If the closing tails off, rewrite it before emitting.
+
 11. **Required closing footer** — Every post ends with this exact pattern, after the closing section:
     ```
     ---
@@ -135,6 +137,8 @@ Generate slug:
 **Single-topic rule**: Pick one main topic from the Reporter JSON and write the entire post about that topic. The Reporter may include multiple bugs, features, and architecture changes that happened in the lookback window — most of them are not the post's subject. Secondary issues (unrelated bug fixes, CI/CD problems, dependency updates) that don't directly contribute to the main story **do not belong in the post**. Including them makes the post feel like a changelog, not an engineering reflection. If a bug fix isn't the story, leave it out entirely.
 
 **No fabricated specifics**: Only include time estimates, durations, and counts that appear explicitly in `session_context` or the Reporter JSON fields. Do not invent them from inference ("took a few hours", "about two minutes", "spent an afternoon"). If you don't know how long something took, don't say how long it took. Fabricated specifics undermine the post's credibility and contradict what the author actually experienced.
+
+**Never use `period.from/to` as the build timeline.** The Reporter's `period` is the *scan window* (how far back git history was read), not the duration of development. If you need to describe how long something took to build, derive it from the actual commit dates in `recent_features[].commits` or `session_context` — or don't mention a duration at all. Writing "built in 14 days" when `lookback_days: 14` is set is always wrong unless the commits literally span 14 days.
 
 **Third-party platform framing**: If the project integrates with a third-party platform (Strava, Shopify, Slack, Apple Health, etc.) and the product exists because that platform didn't serve a specific community or use case, never frame this as the platform not caring, being deficient, or failing the user. The correct framing is: the platform is good and Pablo uses it; the product fills a gap for a specific community the platform wasn't built for. This matters because the product depends on that platform's API and community, and readers from that community will notice criticism. Check for this whenever `tech_signals` or `recent_features` reference a third-party platform as the source of data, activities, or auth (e.g. Strava OAuth, Shopify webhooks).
 
@@ -161,6 +165,21 @@ Generate slug:
 - Dramatic pauses: "That's not a typo", "Here's the beautiful part", "Let that sink in".
 - Defensive framing: "This isn't about AI replacing engineers".
 - Profound conclusions or mic-drop endings.
+- **Audience-naming / job-search framing.** Never name the recruiter or hiring manager as the audience inside the post. Banned phrases: "the job-search use case", "recruiter or hiring manager", "land an interview", "hire this person", "for the job search", "to a recruiter", "to a hiring manager". Telegraphing the play makes the reader feel marketed-to and reads as junior. Just describe what the system does and why it exists; let the reader draw their own conclusion.
+  - Bad: "The pipeline is functionally complete for the job-search use case."
+  - Good: "The pipeline is functionally complete. The open question is whether the posts it produces actually get read."
+- **Hyperbolic counting on lightweight artifacts.** When the underlying objects are short markdown files (SKILL.md, slash commands, config blocks), don't call them "agents" or "services". Use precise terminology: "skills", "subagents", "commands", "configs". This matters because a reader who clicks through and sees markdown files will notice the gap between the claim and the reality.
+  - Bad: "Eight agents wired together" (when six of the eight are SKILL.md files).
+  - Good: "Eight skills wired together" or "five skills plus three commands" or "eight subagents the Publisher spawns in sequence". A skill being invoked as a subagent is a subagent in that moment; otherwise it's a skill.
+- **Speed-as-marquee-number.** Don't lead with build duration as the headline insight. Duration is fine when it's in service of an engineering point. Duration as a brag reads small.
+  - Bad: "Three days from nothing to eight agents."
+  - Bad: "Built in a weekend."
+  - Good: "The plugin format is essentially documentation, which is why a small system like this comes together quickly. A few days of writing SKILL.md files, not weeks of engineering."
+
+**Conditional voice rules** (apply only when the post topic warrants them):
+
+- **For posts about autonomous, content-generation, or LLM-mediated systems** — i.e. systems that produce output under the author's name — include a paragraph or section on how the output is validated or trusted. A reader will wonder "how do you know it isn't lying" before they finish the post; address it directly. Name the deterministic floor (regex pre-checks, voice rules, fabrication guards) and the human ceiling (the author reviews every draft before publish). This rule does not apply to product posts (e.g. paddle-games, dimeglio.dev as a site) where the system isn't generating content under the user's name.
+- **For posts about multi-agent, plugin, skill, or orchestration systems**, explain the component boundaries concretely. Don't say "we use separate contexts." Name (a) the input contract for each component — what argument, file path, or JSON it receives, (b) the output contract — what it returns or writes, (c) why the isolation matters operationally. The Mermaid diagram should show data flow between components, not just boxes connected by arrows. This rule does not apply to single-process product posts where there's no orchestration layer to explain.
 
 **How to replace em-dashes specifically**:
 - `text — text` → if it's a parenthetical, use parentheses: `text (text)`. If it's two thoughts, use a period: `text. Text`. If it's a list interrupter, use a comma: `text, text,`.
@@ -187,6 +206,12 @@ Generate slug:
 - No invented go-to-market language. Match the body's status claims to `goToMarketState` in the project config. If `live`: don't say "waitlist", "early access", "beta", "join the waitlist", or "coming soon". If `waitlist-open`: you may say "join the waitlist" but not "live". If absent or unknown: omit go-to-market claims entirely.
 - UX surface phrasing must match `surface`. If `web`: replace "open the app", "in the app", "download the app" with "visit the site", "browse to", "in the browser". If `mobile-ios` or `mobile-android`: replace "visit the URL" with "open the app". If `cli`: replace "in the browser" with "in the terminal".
 - Third-party platform framing: if the post integrates with a platform like Strava, Shopify, or Slack, scan for any sentence that frames it as not caring, deficient, or failing. Reframe as: the platform is good; the product serves a specific community or use case the platform wasn't built for.
+- **Audience-naming check**: grep the body for `job.search|recruiter or hiring manager|land an interview|hire this person|to a recruiter|to a hiring manager|for the job.search`. Any match must be rewritten so the post describes the system on its own merits, without naming the reader's role.
+- **Hyperbolic counting check**: if the post talks about a plugin, skill system, or agent orchestration and uses the word "agents" with a count >= 5, verify that each "agent" is a meaningful engineered component, not just a SKILL.md file. If most are markdown skills, rewrite as "skills", "subagents", "commands", or a mix that matches reality.
+- **Speed-as-headline check**: grep the body for `^[A-Z][a-z]+ days from nothing|^[0-9]+ days from nothing|in (just |only )?[0-9]+ days[,. ]|built in a weekend`. If a match appears as a standalone sentence or section opener (not in service of an engineering point), rewrite so duration is contextual, not the headline.
+- **Closing-lands check**: re-read the final `##` section. It must include at least one specific insight, non-obvious lesson, concrete next thing, or memorable phrase. If the closing tails off into "the code is on GitHub if you want to look", rewrite it.
+- **Conditional — autonomous/content-system check**: if the post is about a system that generates output under the author's name (writer pipelines, content automation, LLM-mediated agents), confirm there is a paragraph or section addressing how the output is validated or trusted. If absent, add one.
+- **Conditional — multi-agent/orchestration check**: if the post is about a plugin, skill system, or multi-agent orchestration (matched by tech_signals or skills_showcased containing `claude-code-plugins`, `agentic-systems`, `multi-agent`, `LLM-orchestration`, or similar), confirm that input contracts and output contracts between components are named explicitly. "Separate contexts" is not enough; the post must say what each component receives and returns.
 
 If any sentence sounds like a Medium article or a marketing case study, rewrite it.
 
@@ -354,13 +379,27 @@ Call the OpenAI Images API:
 ```bash
 mkdir -p "${dimeglio_dev_path}/public/blog/<slug>"
 
-RESPONSE=$(curl -sS https://api.openai.com/v1/images/generations \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "$(jq -n --arg p "$PROMPT" '{model:"dall-e-3", prompt:$p, size:"1792x1024", quality:"standard", n:1}')")
+# Build the JSON payload with jq first — never interpolate $PROMPT directly into a JSON string.
+# DALL-E 3 model name: "dall-e-3" (exact). Valid sizes: 1024x1024 | 1024x1792 | 1792x1024 (use this).
+PAYLOAD=$(jq -n \
+  --arg model "dall-e-3" \
+  --arg prompt "$PROMPT" \
+  --arg size "1792x1024" \
+  '{model: $model, prompt: $prompt, size: $size, quality: "standard", n: 1}')
 
-IMAGE_URL=$(echo "$RESPONSE" | jq -r '.data[0].url // empty')
-test -n "$IMAGE_URL" || { echo "image gen failed: $RESPONSE"; exit 1; }
+# Retry up to 3 times — transient API errors can cause a false "model does not exist" response.
+IMAGE_URL=""
+for ATTEMPT in 1 2 3; do
+  RESPONSE=$(curl -sS https://api.openai.com/v1/images/generations \
+    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "$PAYLOAD")
+  IMAGE_URL=$(echo "$RESPONSE" | jq -r '.data[0].url // empty')
+  [ -n "$IMAGE_URL" ] && break
+  echo "image gen attempt $ATTEMPT failed: $RESPONSE" >&2
+  sleep 3
+done
+test -n "$IMAGE_URL" || { echo "image gen failed after 3 attempts: $RESPONSE"; exit 1; }
 
 curl -sS "$IMAGE_URL" -o "${dimeglio_dev_path}/public/blog/<slug>/cover.png"
 sips -s format jpeg "${dimeglio_dev_path}/public/blog/<slug>/cover.png" \

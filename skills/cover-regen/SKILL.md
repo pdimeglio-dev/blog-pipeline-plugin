@@ -141,13 +141,27 @@ Additional direction: {ARG2}
 COVER_DIR="${DIMEGLIO_DEV_PATH}/public/blog/${SLUG}"
 mkdir -p "$COVER_DIR"
 
-RESPONSE=$(curl -sS https://api.openai.com/v1/images/generations \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "$(jq -n --arg p "$PROMPT" '{model:"dall-e-3", prompt:$p, size:"1792x1024", quality:"standard", n:1}')")
+# Build the JSON payload with jq first — never interpolate $PROMPT directly into a JSON string.
+# DALL-E 3 model name: "dall-e-3" (exact). Valid sizes: 1024x1024 | 1024x1792 | 1792x1024 (use this).
+PAYLOAD=$(jq -n \
+  --arg model "dall-e-3" \
+  --arg prompt "$PROMPT" \
+  --arg size "1792x1024" \
+  '{model: $model, prompt: $prompt, size: $size, quality: "standard", n: 1}')
 
-IMAGE_URL=$(echo "$RESPONSE" | jq -r '.data[0].url // empty')
-test -n "$IMAGE_URL" || { echo "image gen failed: $RESPONSE"; exit 1; }
+# Retry up to 3 times — transient API errors can cause a false "model does not exist" response.
+IMAGE_URL=""
+for ATTEMPT in 1 2 3; do
+  RESPONSE=$(curl -sS https://api.openai.com/v1/images/generations \
+    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "$PAYLOAD")
+  IMAGE_URL=$(echo "$RESPONSE" | jq -r '.data[0].url // empty')
+  [ -n "$IMAGE_URL" ] && break
+  echo "image gen attempt $ATTEMPT failed: $RESPONSE" >&2
+  sleep 3
+done
+test -n "$IMAGE_URL" || { echo "image gen failed after 3 attempts: $RESPONSE"; exit 1; }
 
 curl -sS "$IMAGE_URL" -o "${COVER_DIR}/cover.png"
 sips -s format jpeg "${COVER_DIR}/cover.png" --out "${COVER_DIR}/cover.jpg" >/dev/null

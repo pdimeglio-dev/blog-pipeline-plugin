@@ -91,6 +91,12 @@ echo "$BODY" | grep -iE 'waitlist|early access|join the beta|sign up for (early|
 # Third-party platform criticism — never frame an integrated platform as deficient
 echo "$BODY" | grep -iE "(strava|shopify|slack|stripe|github|apple health|google fit|notion|substack|airbnb).{0,80}(doesn't care|doesn't support|isn't built for|isn't interested in|fails to|neglected|abandoned|gave up on)"
 echo "$BODY" | grep -iE "(doesn't care about|doesn't support|isn't built for|isn't interested in).{0,80}(strava|shopify|slack|stripe|github|apple health|google fit|notion|substack|airbnb)"
+
+# Audience-naming / job-search framing — never name the recruiter audience inside the post
+echo "$BODY" | grep -iE "job.search use case|recruiter or hiring manager|land an interview|hire this person|to a recruiter|to a hiring manager|for the job.search"
+
+# Speed-as-marquee-number — leading with build duration as the headline
+echo "$BODY" | grep -iE "^[A-Z][a-z]+ days from nothing|^[0-9]+ days from nothing|in (just |only )?[0-9]+ days[,.]| built in a weekend[,.]"
 ```
 
 Also run this non-regex check to verify internal `/blog/<slug>` links resolve to published posts:
@@ -140,7 +146,7 @@ Flags:
 
 Both flags can fire on the same post if both conditions are met.
 
-Run each check. Collect any matches as entries in `voice_flags`, e.g. `"em-dash found (3 occurrences)"`, `"banned word: 'robust'"`, `"title matches 'How X Led to Y' formula"`, `"internal link to unpublished post: 2026-05-11-strava-webhooks-were-eating-activities"`, `"insider roadmap label: 'Phase 4'"`, `"unverified go-to-market claim: 'waitlist'"`, `"third-party platform criticism: 'Strava doesn't care about paddle sports'"`, `"missing explicit CTA — product is live but closing lacks invitation"`.  
+Run each check. Collect any matches as entries in `voice_flags`, e.g. `"em-dash found (3 occurrences)"`, `"banned word: 'robust'"`, `"title matches 'How X Led to Y' formula"`, `"internal link to unpublished post: 2026-05-11-strava-webhooks-were-eating-activities"`, `"insider roadmap label: 'Phase 4'"`, `"unverified go-to-market claim: 'waitlist'"`, `"third-party platform criticism: 'Strava doesn't care about paddle sports'"`, `"missing explicit CTA — product is live but closing lacks invitation"`, `"audience-naming / job-search framing: 'recruiter or hiring manager'"`, `"speed-as-marquee-number: 'Three days from nothing'"`.  
 
 **Important**: actually run these grep commands using the Bash tool with the real file path. Do not eyeball the file and guess — the checks must be mechanical.
 
@@ -170,6 +176,12 @@ Measures how concrete and technically specific the post is. A reader who impleme
 - Does at least one `##` section include a code snippet, Mermaid diagram, or table?
 - Are the failure modes or edge cases named, not just implied?
 
+**Conditional sub-checks** — apply only when the topic warrants them. Determine which conditions fire by inspecting the matched project (Step 2b) and the post's tags/headings:
+
+- **Validation/trust check** — fires when the post is about an autonomous, LLM-mediated, or content-generation system (signals: `tech_signals` or `tags` include any of `agentic-systems`, `claude-code-plugins`, `multi-agent`, `LLM-orchestration`, `automation`; or the body itself talks about a system that produces content/output under Pablo's name). When this fires: does the post address how the output is validated or trusted? If absent, this is a load-bearing technical dimension missing — cap Substance at 7.
+- **Multi-agent contracts check** — fires under the same signals as above. When this fires: does the post name the input/output contracts between components, or just claim "they're separate" / "we use separate contexts"? Concrete input/output contracts (what argument each component receives, what it returns) are the difference between a 7 and a 9 on Substance. If only the *fact* of separation is stated without the contracts, cap Substance at 7.
+- For product posts (paddle-games, dimeglio.dev as a site, normal product launches without LLM orchestration), neither conditional fires; score Substance on the main rubric alone.
+
 ---
 
 #### Showcase (weight: 40%)
@@ -189,6 +201,8 @@ Measures how well the post demonstrates real engineering judgment. This is the "
 - Is there a wrinkle — something that took longer, broke, or would be done differently?
 - Does the post include observability, monitoring, or operational concern?
 - Is there a retrospective ("what I should have done from the start")?
+- **Hyperbolic counting** — if the post uses a count like "N agents" / "N services" / "N components" with N >= 5, and the underlying objects are mostly markdown files (SKILL.md, slash commands, configs) rather than engineered components: penalize. A reader who clicks through and sees the gap between the claim and the reality reads this as overselling. The fix is precise terminology ("skills", "subagents", "commands"). Cap Showcase at 7 if hyperbolic counting is the framing of the main artifact.
+- **Speed-as-headline framing** — if build duration is the headline insight (a section opens with "N days from nothing", or duration is named multiple times as the marquee number), penalize. Duration is fine in service of an engineering point ("the plugin format is essentially documentation, which is why this comes together quickly"). Duration as a brag reads small. Cap Showcase at 7 if speed-as-headline is the dominant framing.
 
 ---
 
@@ -209,7 +223,7 @@ Measures how human and natural the prose sounds. Not grammar — voice. Would a 
 - Are there imperfect transitions ("Anyway,", "So,", "The other thing was...")?
 - Does it use first person throughout?
 - Do any three consecutive short sentences have the same syntactic shape?
-- Does the closing end with a practical takeaway or open question — not an inspirational statement?
+- **Does the closing land?** Look for a specific insight, an instructive lesson, a concrete next thing, or a memorable phrase. A closing that tails off into "look at the code on GitHub if you want" or "the source is on GitHub" as the load-bearing sentence is forgettable. The closing footer (italic credit line after `---`) doesn't satisfy this — the body of the closing section must carry the weight. If the closing is forgettable, score Writing at 6 or below regardless of other factors.
 
 ---
 
