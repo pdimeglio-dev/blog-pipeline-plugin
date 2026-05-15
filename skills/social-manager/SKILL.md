@@ -75,7 +75,7 @@ These are used in Step 2 (LinkedIn link line + CTA) and Step 3 (X final tweet + 
 
 ### 2. Write LinkedIn copy
 
-**Length: 60–120 words. Hard cap 150.** Count carefully. Anything over 150 is doing the blog's job. The current sweet spot is around 80 words — enough to land the surprise, gesture at the resolution, and ask one good question.
+**Length: 60–120 words. Hard cap 150.** Count carefully. Anything over 150 is doing the blog's job. The current sweet spot is around 100 words — enough to explain why you built it, what it does, one human moment, and a question.
 
 **Voice rules** (apply strictly):
 - Never open with "Excited to share", "Proud to announce", "Humbled by", "Grateful for", or any variant.
@@ -83,15 +83,27 @@ These are used in Step 2 (LinkedIn link line + CTA) and Step 3 (X final tweet + 
 - No bullet points. No emoji. No hashtags at the end. Prose only.
 - First person, casual. Contractions. Fragments where natural.
 - **No em-dashes (—).** Use periods, commas, or parentheses instead.
-- Do not summarize the post. Lead with the surprise; let the post handle the explanation.
+- Do not summarize the post. Write what you'd actually say when sharing this link with an engineer you know — honest about why you built it, specific about what it does, human in tone. No manufactured tension.
 
-**Structure** (surprise first, setup second or not at all):
+**Structure** (write what you'd actually say when sharing this link with an engineer you know):
 
-1. **The surprise (1–2 sentences).** Open with the counter-intuitive finding itself. Specific. Names a thing. **NOT** a personal confession ("I have a problem with X"). **NOT** an abstract problem statement ("Writing discipline is hard"). The first ~140 characters (the visible-before-"see more" portion on mobile) **MUST** contain a specific noun: an error name, a number, a tool, a concrete artifact. This is the scroll-stop.
+1. **Why you built it (1–2 sentences).** Honest, self-aware, human. Why does this exist? Usually: you were bad at X, you were solving your own problem, something annoyed you enough to build it. Must name the artifact in plain language — a cold reader needs to know what thing this is about. Not abstract motivation ("automation is valuable") — your specific reason.
 
-2. **One line of context (1 sentence max).** How this happened. **NOT** an architecture overview. ONE concrete detail that makes the surprise make sense.
+   ✅ "Writing discipline is not my strong suit. I'm better at shipping things than writing about them. So I built a pipeline that does the writing part for me."
+   ✅ "Strava's webhook retry behavior was eating duplicate activities. Built an idempotency layer so it couldn't."
+   ❌ "I have a writing discipline problem." (no artifact named)
+   ❌ "The Rater was inflating scores." (internal jargon, cold reader has no context)
 
-3. **What it means (1–2 sentences).** The lesson, framed honestly. Why this matters beyond the specific case. Apply the withhold-the-punchline rule below — gesture at the resolution, do not explain it.
+   The first ~140 characters **MUST** contain a plain-language artifact noun phrase. Project-internal names ("the Rater," "the orchestrator") are jargon — replace with what they actually are or anchor them with a sentence naming the parent project.
+
+2. **What it does (2–3 sentences).** Concrete, specific. What does a reader learn about the thing you built? Name the approach, the mechanism, a number if there is one. Be specific enough that someone who hasn't read the post gets a real picture of what exists.
+
+   ✅ "It reads my git history, figures out what was interesting, and drafts an MDX blog post. I review it, fix what's off, and publish. About $0.06 per post in API costs."
+
+3. **The honest/funny part (1–2 sentences).** What was hard, what's counterintuitive, or a self-aware observation about the process. This is what makes the post feel human instead of promotional. Must be self-explanatory to a cold reader — no internal scores, no project jargon, no assumed context.
+
+   ✅ "The hardest part was making it not sound like an AI wrote it. It did, but made it way harder for readers to find out :)"
+   ❌ "(This post got an 8.7 on the second try.)" — 8.7 means nothing without context.
 
 4. **CTA (when `goToMarketState` is `live`).** If the project config has `goToMarketState: "live"` and a `liveUrl`, include an explicit invitation to join or try the product before the link line. Name the community or sport types if the product targets a specific one (derive from `tone` or `skills_showcased` in project config — e.g. "SUP, kayak, canoe, surf, row" for a paddle sports app). The invitation should name the action: "connect your Strava account and join", "sign up", "try it". A passive "the app is live at X" does not satisfy this — it must be a direct invitation. Example: "If you paddle (SUP, kayak, canoe, surf, row, anything), connect your Strava account and join at thepaddlegames.com."
 
@@ -108,17 +120,12 @@ These are used in Step 2 (LinkedIn link line + CTA) and Step 3 (X final tweet + 
 
    The pattern: "Has anyone else _____?" / "What did you find when you tried _____?" / "Anyone hit _____?" — verbs that invite reporting an experience, not theorizing.
 
-**Withhold the punchline.** State the surprise. Gesture at the resolution. Do **not** explain it. The post is the payoff; the copy is the trailer.
-
-- ❌ "Moved Rater to a separate subagent and scores got harder and more honest." (Gives away the fix and the lesson.)
-- ✅ "Moved Rater out of the Writer's context. Scores dropped. The fix was structural, not a prompt change. →" (Names the change, hints at the lesson, makes you click for the rest.)
-
-If a reader can answer "what was the lesson here?" from the LinkedIn post alone, you wrote too much. Cut.
+**Leave something for the post.** The copy should make someone want to click — not by withholding information artificially, but by being direct about the what and why while leaving the how and the depth for the post. If a reader gets everything they need from the social copy and has no reason to click, trim. If it reads like a trailer that manufactured tension, rewrite it to sound like yourself.
 
 **Personality (fun but professional).** The copy should sound like a real engineer with a point of view. Encouraged:
 
-- **Dry asides in parentheses.** "(Yes, I am aware the system scored its own post.)" / "(This post got 8.7 on the second try.)" / "(The recursion is fine.)"
-- **Self-aware observations** when the post is about the system itself. Meta posts should acknowledge the recursion, not pretend it isn't there.
+- **Dry asides in parentheses.** The aside must land for a cold reader who has never read the post and doesn't know your project internals. ✅ "(Yes, I am aware the system scored its own post.)" / "(I used the pipeline to write this very post about building it.)" / "(This tweet was written by the system it describes.)" ❌ "(This post got 8.7 on the second try.)" — 8.7 means nothing without context. ❌ "(The recursion is fine.)" — "the recursion" sounds like a CS term; a cold reader has no idea what it refers to.
+- **Self-aware observations** when the post is about the system itself. Meta posts should acknowledge the self-referential nature explicitly, not hint at it with insider phrases. Say "I used the pipeline to write this post about building the pipeline" — not "the recursion."
 - **Self-deprecation about the process, not the product.** "took me three tries to get the Rater to stop inflating its own scores" reads honest. "This groundbreaking pipeline..." reads like a press release.
 - **Humor that lives inside a technical observation, not as a standalone punchline.** The joke earns its place by also being a fact.
 
@@ -145,22 +152,19 @@ Minimum: **one moment of personality** per LinkedIn draft. Two is fine. More tha
 - No "🧵 Thread:" opener. Start with the hook directly.
 - Hashtags: 0–1 per tweet, only if genuinely useful (e.g. `#webdev`). Never stack hashtags at the end.
 
-**Single tweet (default).** When the surprise can land in one tweet, do that. Format: `<surprise + sharp framing>. <link>`. Max 280 characters including the link.
+**Single tweet (default).** Write what you'd actually post when sharing this. Self-aware opener that names what you built and why, then the link. Model: *"Did you think I became a Writer all of a sudden? Negative. Built a pipeline that reads my git history and drafts the posts for me. → link"*. Max 280 chars. The tone is direct, the artifact is named, the why is honest.
 
-**Thread (only when needed).** Use 2–3 tweets only when the surprise genuinely requires unpacking.
+**Thread (only when needed).** Use 2–3 tweets only when a single tweet genuinely can't carry it.
 
-- **Tweet 1: THE SURPRISE.** The counter-intuitive finding itself. **NOT** the setup, **NOT** "I built X." Max 240 chars. This is the scroll-stop on X — a reader who only sees this tweet should understand the point and want more.
-- **Tweet 2 (optional):** ONE concrete detail that makes the surprise tangible — a specific number, error, or mechanism. Skip if tweet 1 stands alone.
-- **Final tweet:** Withhold the punchline. Gesture at the resolution, then link. Format: `<one-line framing of why it matters> → <link>`. Append project handle when present: `<framing> → <link> | @handle`.
+- **Tweet 1: why you built it + what it is.** Same cold-reader rule as LinkedIn — name the artifact in plain language, explain the honest reason it exists. Internal jargon without context fails on X too. Max 240 chars.
+- **Tweet 2 (optional):** ONE concrete detail — a specific number, mechanism, or finding. Only if it genuinely adds something tweet 1 couldn't hold.
+- **Final tweet:** One line framing what the post is worth reading for, then the link. Format: `<why it's worth reading> → <link>`. Append project handle when present.
 
 If the project has only `social.instagram` (no `social.x`), include it anyway: `<framing> → <link> | @handle on Instagram`. Cross-platform handles are fine when it's the project's own account.
 
 **CTA tweet (when `goToMarketState` is `live`).** If the project is live, add a dedicated CTA as the final tweet (shifting the takeaway/link tweet to second-to-last if needed, keeping total under 3 if possible; up to 4 only when CTA pushes the count). Name the community or sport types explicitly. Example: "If you SUP, kayak, canoe, surf, or row, connect your Strava account and join. Architecture overview → <link> | @handle on Instagram". This makes the thread end with both an honest reflection AND an invitation.
 
-**Withhold the punchline.** Same rule as LinkedIn. State the surprise, gesture at the resolution, do not explain it.
-
-- ❌ "Moved Rater to a separate subagent and scores got harder and more honest."
-- ✅ "Moved Rater out of the Writer's context. Scores dropped. The fix was structural. →"
+**Leave something for the post.** Same rule as LinkedIn — direct about the what and why, the depth lives in the post.
 
 **Personality (fun but professional).** Same rule as LinkedIn — minimum one moment of personality per X draft (single tweet or thread). Same examples, same boundaries, same meta-post bonus.
 
@@ -173,7 +177,8 @@ Before showing anything to Pablo, re-read both drafts against this checklist. **
 ```
 [ ] Zero em-dashes (—) anywhere in either draft
 [ ] Zero banned buzzwords ("game-changer", "leverage" verb, "impact", "journey", "passionate", "thrilled", "delighted", "honored", "humbled", "robust", "seamless", etc.)
-[ ] LinkedIn first ~140 chars contain a specific noun (number, error name, tool, artifact) — not a personal confession or abstract problem statement
+[ ] LinkedIn first ~140 chars contain a plain-language artifact noun phrase a cold reader can understand without context ("a pipeline that writes my blog posts," "a Strava webhook service") — not internal jargon ("the Rater," "the orchestrator"), not a personal confession, not an abstract problem statement
+[ ] X Tweet 1 names the artifact in plain language too (same cold-reader rule) — "Built a pipeline that..." or equivalent. Project-internal names without an anchor fail on X same as on LinkedIn
 [ ] LinkedIn word count ≤ 150 (hard cap; flag yourself at 120 and consider cutting)
 [ ] LinkedIn ends with a question mark
 [ ] Question asks for a specific experience, not an opinion
@@ -181,9 +186,11 @@ Before showing anything to Pablo, re-read both drafts against this checklist. **
 [ ] Every X tweet ≤ 280 chars including link; Tweet 1 ≤ 240 chars
 [ ] X thread ≤ 3 tweets total (single tweet preferred); 4 tweets only when a live-product CTA forces it
 [ ] Final X tweet contains the post link
-[ ] Click test: if a reader gets the full answer from social copy alone, cut content until they don't
+[ ] Authenticity test: does this sound like something you'd actually post, or does it sound like a content strategist wrote it? If it has manufactured tension, "withhold" framing, or reads like a trailer — rewrite it to sound like yourself sharing work with an engineer you know
+[ ] Click test: is there a reason to click? The copy should be direct about the what and why; the depth, the how, and the specifics live in the post
 [ ] At least one moment of personality / dry aside / self-aware framing per draft
     (if both drafts read fully neutral, the copy is too dry; if it leans into jokes, dial back)
+[ ] Every personality moment is self-explanatory to a cold reader — no internal scores ("8.7"), no project jargon ("the Rater," "the recursion"), no assumed context. The joke must land without having read the post.
 ```
 
 Run the self-check explicitly and mention in your output to Pablo that it passed (or what you revised to make it pass). The em-dash, the over-length LinkedIn, the abstract question — these should never make it to the present step.
