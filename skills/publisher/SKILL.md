@@ -105,7 +105,7 @@ Sort remaining projects by score descending.
 
 **If `FORCED_PROJECT_ID` is set**: run Reporter only for that one project. Cooldown and monthly cap are bypassed when forced. Skip to Step 4 after — do not show the human selection checkpoint.
 
-**Otherwise**: for each project not marked capped or already-drafted-today, invoke the Reporter skill via the `Skill` tool passing the project `id`. Collect all results before continuing.
+**Otherwise**: for each project not marked capped or already-drafted-today, invoke the Reporter agent via the `Agent` tool with `subagent_type: "blog-pipeline:reporter"`, passing the project `id` in the prompt. Collect all results before continuing.
 
 Do NOT skip low-signal projects here — collect the Reporter JSON regardless and let the human decide. Note `low_signal: true` in the result.
 
@@ -142,7 +142,7 @@ Check `projects[id].has_intro_post` in the state. If `false`, this is an intro p
 
 #### 4b. Run Writer
 
-Invoke the Writer skill via the `Skill` tool. Embed the full Reporter JSON (collected in Step 3b) inline in the prompt, followed by the intro mode instruction if applicable.
+Invoke the Writer agent via the `Agent` tool with `subagent_type: "blog-pipeline:writer"`. Embed the full Reporter JSON (collected in Step 3b) inline in the prompt, followed by the intro mode instruction if applicable.
 
 **Normal mode prompt to Writer**:
 ```
@@ -174,7 +174,7 @@ Capture the Writer's return JSON. If it contains an `error` key, log the error a
 
 #### 4c. Run Rater
 
-Invoke the Rater skill via the `Skill` tool, passing the `mdx_path` from the Writer's return JSON.
+Invoke the Rater agent via the `Agent` tool with `subagent_type: "blog-pipeline:rater"`, passing the `mdx_path` from the Writer's return JSON in the prompt.
 
 Capture the Rater JSON. Check `pass` and `composite`.
 
