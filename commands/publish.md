@@ -9,7 +9,8 @@ Publishes an approved draft to dimeglio.dev. Replaces the 4-step manual publish 
 3. Runs `npm run ingest` to regenerate the slugs index and embeddings
 4. Stages and commits the MDX + cover dir + ingest output as `publish: <title>`
 5. Updates `editorial_state.json` (last_posted, posts_this_month, removes from draft_queue, marks intro complete if applicable)
-6. Asks before pushing — never pushes automatically
+6. Generates LinkedIn + X social copy via the Social Manager (interactive review loop), commits as `social: <title>`
+7. Asks before pushing — never pushes automatically
 
 ## Usage
 

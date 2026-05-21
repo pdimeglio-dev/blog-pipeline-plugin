@@ -6,6 +6,7 @@ allowed-tools:
   - Read
   - Write
   - Edit
+  - Agent
   - Bash(git *)
   - Bash(git -C *)
   - Bash(npm *)
@@ -211,6 +212,33 @@ fi
 
 The editorial_state update is **not** auto-committed — that's intentional (per existing plugin convention). The user commits state manually when they want it persisted across machines.
 
+### 8.5. Generate social copy
+
+Check whether a `.social.json` already exists for this post:
+
+```bash
+SOCIAL_FILE="${DIMEGLIO_DEV_PATH}/content/blog/${SLUG}.social.json"
+```
+
+If `$SOCIAL_FILE` already exists, skip this step — don't overwrite approved social copy.
+
+If it doesn't exist, invoke the Social Manager agent via the `Agent` tool with `subagent_type: "blog-pipeline:social-manager"`, passing the MDX path in the prompt:
+
+```
+Generate social copy for this post: <MDX_PATH>
+```
+
+The Social Manager will present LinkedIn and X drafts, run an interactive review loop with the user, and save `<slug>.social.json` once approved.
+
+After the Social Manager completes, if `$SOCIAL_FILE` now exists, stage and commit it:
+
+```bash
+git -C "$DIMEGLIO_DEV_PATH" add "content/blog/${SLUG}.social.json"
+git -C "$DIMEGLIO_DEV_PATH" commit -m "social: ${TITLE}"
+```
+
+If the Social Manager returned an error or the file still doesn't exist, log a warning ("social copy generation failed — run /blog-pipeline:social <slug> manually") and continue. Do not abort the publish for a failed social step.
+
 ### 9. Confirm and ask about push
 
 Print a summary:
@@ -220,6 +248,7 @@ Print a summary:
   - Flipped published: true
   - Ran npm run ingest
   - Committed: publish: <title>
+  - Social copy: committed social: <title> / skipped (already existed) / failed (run manually)
   - Updated editorial_state.json (project: <project_id>, intro: <was_intro>)
 ```
 
@@ -244,9 +273,12 @@ Emit **only** this JSON — no preamble:
   "project_id": "...",
   "was_intro": false,
   "commit_sha": "abc1234",
+  "social_copy": "committed",
   "pushed": false
 }
 ```
+
+`social_copy` is one of `"committed"`, `"skipped"` (file already existed), or `"failed"` (agent error).
 
 If pushed: `"pushed": true` and include the remote ref.
 
