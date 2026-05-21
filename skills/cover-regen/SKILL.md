@@ -17,6 +17,7 @@ allowed-tools:
   - Bash(cut *)
   - Bash(test *)
   - Bash(sleep *)
+  - Bash(base64 *)
 argument-hint: "<slug or mdx_path> [extra prompt text]"
 user-invocable: true
 ---
@@ -142,32 +143,30 @@ Additional direction: {ARG2}
 COVER_DIR="${DIMEGLIO_DEV_PATH}/public/blog/${SLUG}"
 mkdir -p "$COVER_DIR"
 
-# Build the JSON payload with jq first — never interpolate $PROMPT directly into a JSON string.
-# DALL-E 3 model name: "dall-e-3" (exact). Valid sizes: 1024x1024 | 1024x1792 | 1792x1024 (use this).
+# gpt-image-1: quality "low"/"medium"/"high" (not "standard"). Size 1536x1024 for landscape.
+# b64_json avoids expiring URL downloads — decode directly to disk.
 PAYLOAD=$(jq -n \
-  --arg model "dall-e-3" \
+  --arg model "gpt-image-1" \
   --arg prompt "$PROMPT" \
-  --arg size "1792x1024" \
-  '{model: $model, prompt: $prompt, size: $size, quality: "standard", n: 1}')
+  --arg size "1536x1024" \
+  '{model: $model, prompt: $prompt, size: $size, quality: "low", n: 1, response_format: "b64_json"}')
 
-# Retry up to 5 times with 10s backoff — OpenAI transiently returns "model does not exist"
-# for dall-e-3 due to a server-routing quirk; 3s was too short to clear the window.
-IMAGE_URL=""
+IMAGE_B64=""
 for ATTEMPT in 1 2 3 4 5; do
   RESPONSE=$(curl -sS https://api.openai.com/v1/images/generations \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d "$PAYLOAD")
-  IMAGE_URL=$(echo "$RESPONSE" | jq -r '.data[0].url // empty')
-  [ -n "$IMAGE_URL" ] && break
+  IMAGE_B64=$(echo "$RESPONSE" | jq -r '.data[0].b64_json // empty')
+  [ -n "$IMAGE_B64" ] && break
   ERROR_CODE=$(echo "$RESPONSE" | jq -r '.error.code // .error.type // "unknown"')
   ERROR_MSG=$(echo "$RESPONSE" | jq -r '.error.message // "no message"')
   echo "image gen attempt $ATTEMPT/5 failed — code: $ERROR_CODE | message: $ERROR_MSG | full: $RESPONSE" >&2
   [ "$ATTEMPT" -lt 5 ] && sleep 10
 done
-test -n "$IMAGE_URL" || { echo "image gen failed after 5 attempts — last error: $RESPONSE"; exit 1; }
+test -n "$IMAGE_B64" || { echo "image gen failed after 5 attempts — last error: $RESPONSE"; exit 1; }
 
-curl -sS "$IMAGE_URL" -o "${COVER_DIR}/cover.png"
+echo "$IMAGE_B64" | base64 -d > "${COVER_DIR}/cover.png"
 sips -s format jpeg "${COVER_DIR}/cover.png" --out "${COVER_DIR}/cover.jpg" >/dev/null
 rm "${COVER_DIR}/cover.png"
 ```
