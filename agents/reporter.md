@@ -26,16 +26,6 @@ If given a project_id, read `projects.config.json` and find the matching entry. 
 
 Expand `~` in the path: replace `~` with the actual home directory path.
 
-Also read `editorial_state.json` from the top-level `dimeglio_dev_path` and extract `last_posted` for this project:
-
-```bash
-DIMEGLIO_DEV_PATH=$(jq -r '.dimeglio_dev_path' "$PLUGIN_ROOT/projects.config.json" | sed "s|^~|$HOME|")
-STATE_FILE="$DIMEGLIO_DEV_PATH/editorial_state.json"
-LAST_POSTED=$(jq -r --arg id "<project_id>" '.projects[$id].last_posted // empty' "$STATE_FILE" 2>/dev/null)
-```
-
-This is used in Step 3 to clamp the git log window so the Reporter never surfaces commits already covered by a prior post.
-
 ### 2. Verify the repo exists
 Check the path is a valid git repo by running:
 ```
@@ -57,25 +47,13 @@ Then determine the remote tracking branch to read history from (falls back to `H
 GIT_REF=$(git -C <expanded_path> rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "HEAD")
 ```
 
-Now run the log against `$GIT_REF` so you see commits that landed on the remote even if the local branch hasn't been merged yet.
-
-Use the **effective since-date**: the more recent of `last_posted` (from Step 1) and `lookback_days` ago. This ensures the Reporter never re-surfaces commits already covered by a prior post.
+Now run the log against `$GIT_REF` so you see commits that landed on the remote even if the local branch hasn't been merged yet:
 
 ```bash
-LOOKBACK_DATE=$(date -v-"${lookback_days}"d +%Y-%m-%d 2>/dev/null || date -d "${lookback_days} days ago" +%Y-%m-%d)
-
-if [ -n "$LAST_POSTED" ] && [[ "$LAST_POSTED" > "$LOOKBACK_DATE" ]]; then
-  SINCE_DATE="$LAST_POSTED"
-else
-  SINCE_DATE="$LOOKBACK_DATE"
-fi
-
-git -C <expanded_path> log "$GIT_REF" --oneline --since="$SINCE_DATE" --format="%H %ad %s" --date=short
+git -C <expanded_path> log "$GIT_REF" --oneline --since="<lookback_days> days ago" --format="%H %ad %s" --date=short
 ```
 
 Collect all output lines. If fewer than 3 commits total, that's a low-signal indicator.
-
-Include `since_date` and `last_posted` in the output JSON's `period.from` field — use `SINCE_DATE` as the actual from-date.
 
 ### 4. Gather diff stats (scope of work)
 ```
