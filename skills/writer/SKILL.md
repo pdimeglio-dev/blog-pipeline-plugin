@@ -15,6 +15,7 @@ allowed-tools:
   - Bash(test *)
   - Bash(rm *)
   - Bash(python3 *)
+  - Bash(sleep *)
 argument-hint: "<reporter_json>"
 user-invocable: true
 ---
@@ -387,19 +388,22 @@ PAYLOAD=$(jq -n \
   --arg size "1792x1024" \
   '{model: $model, prompt: $prompt, size: $size, quality: "standard", n: 1}')
 
-# Retry up to 3 times — transient API errors can cause a false "model does not exist" response.
+# Retry up to 5 times with 10s backoff — OpenAI transiently returns "model does not exist"
+# for dall-e-3 due to a server-routing quirk; 3s was too short to clear the window.
 IMAGE_URL=""
-for ATTEMPT in 1 2 3; do
+for ATTEMPT in 1 2 3 4 5; do
   RESPONSE=$(curl -sS https://api.openai.com/v1/images/generations \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d "$PAYLOAD")
   IMAGE_URL=$(echo "$RESPONSE" | jq -r '.data[0].url // empty')
   [ -n "$IMAGE_URL" ] && break
-  echo "image gen attempt $ATTEMPT failed: $RESPONSE" >&2
-  sleep 3
+  ERROR_CODE=$(echo "$RESPONSE" | jq -r '.error.code // .error.type // "unknown"')
+  ERROR_MSG=$(echo "$RESPONSE" | jq -r '.error.message // "no message"')
+  echo "image gen attempt $ATTEMPT/5 failed — code: $ERROR_CODE | message: $ERROR_MSG | full: $RESPONSE" >&2
+  [ "$ATTEMPT" -lt 5 ] && sleep 10
 done
-test -n "$IMAGE_URL" || { echo "image gen failed after 3 attempts: $RESPONSE"; exit 1; }
+test -n "$IMAGE_URL" || { echo "image gen failed after 5 attempts — last error: $RESPONSE"; exit 1; }
 
 curl -sS "$IMAGE_URL" -o "${dimeglio_dev_path}/public/blog/<slug>/cover.png"
 sips -s format jpeg "${dimeglio_dev_path}/public/blog/<slug>/cover.png" \
