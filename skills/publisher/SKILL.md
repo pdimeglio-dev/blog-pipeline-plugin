@@ -77,7 +77,7 @@ DIMDEV="<expanded dimeglio_dev_path>"
 # slugs that match known post dates. Simpler: if there are ANY published posts
 # at all for this site dated before today, prompt the user to manually set
 # has_intro_post: true for established projects rather than guessing.
-find "$DIMDEV/content/blog" -name "*.mdx" -exec grep -l "published: true" {} \; | wc -l
+grep -rl "published: true" "$DIMDEV/content/blog" --include="*.mdx" 2>/dev/null | wc -l
 ```
 
 If published posts already exist (count > 0) AND the project's `last_posted` is null, log a warning in the run summary: "Project <id> may already have published content — verify `has_intro_post` in editorial_state.json before running." Do not auto-set it; Pablo should confirm.
@@ -105,7 +105,7 @@ Sort remaining projects by score descending.
 
 **If `FORCED_PROJECT_ID` is set**: run Reporter only for that one project. Cooldown and monthly cap are bypassed when forced. Skip to Step 4 after — do not show the human selection checkpoint.
 
-**Otherwise**: for each project not marked capped or already-drafted-today, invoke the Reporter skill as a subagent passing the project `id`. Collect all results before continuing.
+**Otherwise**: for each project not marked capped or already-drafted-today, invoke the Reporter skill via the `Skill` tool passing the project `id`. Collect all results before continuing.
 
 Do NOT skip low-signal projects here — collect the Reporter JSON regardless and let the human decide. Note `low_signal: true` in the result.
 
@@ -142,7 +142,7 @@ Check `projects[id].has_intro_post` in the state. If `false`, this is an intro p
 
 #### 4b. Run Writer
 
-Invoke the Writer skill as a subagent. Embed the full Reporter JSON (collected in Step 3b) inline in the prompt, followed by the intro mode instruction if applicable.
+Invoke the Writer skill via the `Skill` tool. Embed the full Reporter JSON (collected in Step 3b) inline in the prompt, followed by the intro mode instruction if applicable.
 
 **Normal mode prompt to Writer**:
 ```
@@ -174,7 +174,7 @@ Capture the Writer's return JSON. If it contains an `error` key, log the error a
 
 #### 4c. Run Rater
 
-Invoke the Rater skill as a subagent, passing the `mdx_path` from the Writer's return JSON.
+Invoke the Rater skill via the `Skill` tool, passing the `mdx_path` from the Writer's return JSON.
 
 Capture the Rater JSON. Check `pass` and `composite`.
 
