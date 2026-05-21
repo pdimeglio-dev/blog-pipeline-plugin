@@ -5,6 +5,7 @@ model: sonnet
 allowed-tools:
   - Read
   - Write
+  - Agent
   - Bash(git -C *)
   - Bash(find *)
   - Bash(grep *)
@@ -81,42 +82,67 @@ find "$DIMDEV/content/blog" -name "*.mdx" -exec grep -l "published: true" {} \; 
 
 If published posts already exist (count > 0) AND the project's `last_posted` is null, log a warning in the run summary: "Project <id> may already have published content — verify `has_intro_post` in editorial_state.json before running." Do not auto-set it; Pablo should confirm.
 
-### 3. Score and select projects
+### 3. Score all projects
 
-**If `FORCED_PROJECT_ID` is set** (from Step 0): skip scoring entirely. Select only that one project. The cooldown (`min_days_between_posts`) and monthly cap (`max_posts_per_month`) are **bypassed** when forced — the user is explicit. But still run the idempotency check (don't draft the same project twice in one day even when forced; tell the user it's already drafted today).
-
-**Otherwise** (automatic mode), for each project, calculate a score:
+For each project, calculate a score:
 
 ```
 score = priority (1–5 from config)
       + 2 × floor(days_since_last_post / 7)          # +2 per week without a post
-      - (3 if days_since_last_post < min_days_between_posts else 0)  # cooldown
+      - (3 if days_since_last_post < min_days_between_posts else 0)  # cooldown penalty
       - (10 if posts_this_month >= max_posts_per_month else 0)       # monthly cap
 ```
 
 `days_since_last_post` = today minus `last_posted` date. If `last_posted` is null, treat as 30 days.
 
-Sort projects by score descending. Select the top **1–2** (target 1–2 posts/week cadence).
+Mark projects where `posts_this_month >= max_posts_per_month` as **capped** — they are excluded from Reporter and from the selection checkpoint.
 
-**Idempotency check**: before adding a project to the selected list, check if it already has a draft in `draft_queue` with `created_at` equal to today's date. If so, skip it — do not draft the same project twice in one day.
+**Idempotency check**: mark any project that already has a draft in `draft_queue` with `created_at` equal to today as **already drafted today** — exclude from Reporter.
 
-### 4. For each selected project, run the pipeline
+Sort remaining projects by score descending.
 
-For each selected project in order:
+### 3b. Run Reporter on all viable projects
+
+**If `FORCED_PROJECT_ID` is set**: run Reporter only for that one project. Cooldown and monthly cap are bypassed when forced. Skip to Step 4 after — do not show the human selection checkpoint.
+
+**Otherwise**: for each project not marked capped or already-drafted-today, invoke the Reporter skill as a subagent passing the project `id`. Collect all results before continuing.
+
+Do NOT skip low-signal projects here — collect the Reporter JSON regardless and let the human decide. Note `low_signal: true` in the result.
+
+### 3c. Human selection checkpoint
+
+**Skip this step entirely if `FORCED_PROJECT_ID` is set.**
+
+From the collected Reporter results, build an option for each project (sorted by score descending, up to 4). For each option:
+
+- **label**: project `name` — append ` ⚠ low signal` if `low_signal: true`, or ` (on cooldown)` if score had the cooldown penalty
+- **description**: `Score: <n> · <days_since_last_post>d since last post · <first highlight from reporter, or "No notable commits found" if low_signal>`
+
+Present to the user using AskUserQuestion:
+
+```
+question: "Reporter scanned all projects. Select which ones to draft today — or pick none to stop."
+multiSelect: true
+options: [one per viable project, ranked by score]
+```
+
+If the user selects none: print a brief summary ("No projects selected — nothing drafted today."), write `last_run` to state, and stop.
+
+If all projects were capped or already drafted today and there is nothing to offer: tell the user and stop.
+
+### 4. For each human-selected project, run Writer → Rater
+
+Use the Reporter JSON already collected in Step 3b — do not re-run Reporter.
+
+For each selected project in order (or the forced project if in forced mode):
 
 #### 4a. Detect intro mode
 
 Check `projects[id].has_intro_post` in the state. If `false`, this is an intro post run. Set `intro_mode = true`.
 
-#### 4b. Run Reporter
+#### 4b. Run Writer
 
-Invoke the Reporter skill as a subagent, passing the project's `id` as the argument. The Reporter reads `projects.config.json` itself and returns a JSON object.
-
-Capture the Reporter JSON. If `low_signal: true`, skip this project, log "Skipped <id>: low signal", and move to the next.
-
-#### 4c. Run Writer
-
-Invoke the Writer skill as a subagent. Embed the full Reporter JSON inline in the prompt, followed by the intro mode instruction if applicable.
+Invoke the Writer skill as a subagent. Embed the full Reporter JSON (collected in Step 3b) inline in the prompt, followed by the intro mode instruction if applicable.
 
 **Normal mode prompt to Writer**:
 ```
@@ -146,13 +172,13 @@ Intro mode + topic hint can combine — an intro post can still be biased toward
 
 Capture the Writer's return JSON. If it contains an `error` key, log the error and skip Rater for this project. Still update state with `status: "error"`.
 
-#### 4d. Run Rater
+#### 4c. Run Rater
 
 Invoke the Rater skill as a subagent, passing the `mdx_path` from the Writer's return JSON.
 
 Capture the Rater JSON. Check `pass` and `composite`.
 
-#### 4e. Update state
+#### 4d. Update state
 
 Append to `projects[id].draft_queue`:
 
@@ -196,8 +222,8 @@ Drafts produced: <n>
   - <slug> (composite: X.X) ✓
 Rejected: <n>
   - <slug> (composite: X.X, flags: <voice_flags>) ✗
-Skipped: <n>
-  - <id>: low signal / already drafted today / monthly cap reached
+Not selected: <n>
+  - <id>: not selected by user / low signal / already drafted today / monthly cap reached
 
 Intro posts produced: <n> (marks first post for project)
 

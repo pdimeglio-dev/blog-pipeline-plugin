@@ -35,10 +35,26 @@ git -C <expanded_path> rev-parse --is-inside-work-tree
 ```
 If this fails, output `{ "project_id": "<id>", "error": "repo not found at <path>" }` and stop.
 
-### 3. Gather git log
+### 3. Fetch remote state and gather git log
+
+First, download the latest remote refs. This is read-only — it never touches the working tree, local branches, or uncommitted changes:
+
+```bash
+git -C <expanded_path> fetch --quiet 2>/dev/null || true
 ```
-git -C <path> log --oneline --since="<lookback_days> days ago" --format="%H %ad %s" --date=short
+
+Then determine the remote tracking branch to read history from (falls back to `HEAD` if no remote is configured):
+
+```bash
+GIT_REF=$(git -C <expanded_path> rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "HEAD")
 ```
+
+Now run the log against `$GIT_REF` so you see commits that landed on the remote even if the local branch hasn't been merged yet:
+
+```bash
+git -C <expanded_path> log "$GIT_REF" --oneline --since="<lookback_days> days ago" --format="%H %ad %s" --date=short
+```
+
 Collect all output lines. If fewer than 3 commits total, that's a low-signal indicator.
 
 ### 4. Gather diff stats (scope of work)

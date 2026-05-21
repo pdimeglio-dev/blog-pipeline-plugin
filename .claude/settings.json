@@ -26,6 +26,8 @@
       "Bash(npm *)",
       "Bash(node *)",
       "Bash(date *)",
+      "Bash(sleep *)",
+      "Bash(tr *)",
       "Bash(command *)",
       "Read",
       "Write",
