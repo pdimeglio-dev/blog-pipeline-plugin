@@ -9,6 +9,7 @@ Runs the full blog pipeline: selects projects, generates drafts, scores them, an
 /blog-pipeline:run <project_id>                     # force this project
 /blog-pipeline:run <project_id> "<topic>"           # force project AND bias to topic
 /blog-pipeline:run "<topic>"                        # automatic project, biased to topic
+/blog-pipeline:run series <series-id> [next]        # draft the next planned part of a series
 ```
 
 ## Examples
@@ -18,6 +19,7 @@ Runs the full blog pipeline: selects projects, generates drafts, scores them, an
 /blog-pipeline:run paddle-games
 /blog-pipeline:run paddle-games "outbox shadow mode rollout"
 /blog-pipeline:run "the new webhook idempotency fix"
+/blog-pipeline:run series batcave-build             # draft the next unwritten part
 ```
 
 ## What it does
@@ -33,6 +35,8 @@ Runs the full blog pipeline: selects projects, generates drafts, scores them, an
 First post for any project is automatically an architectural overview — the pipeline detects whether a project has had its intro post yet. The topic hint still applies in intro mode.
 
 When a project is forced, the cooldown (`min_days_between_posts`) and monthly cap are bypassed. Same-day idempotency still applies — you can't draft the same project twice in one day.
+
+**Series mode** (`series <series-id>`) reads `series.config.json`, picks the next part whose status is `planned`, and forces that part's project. It bypasses the cooldown and monthly cap so a multi-part arc isn't blocked, passes the part's brief and `kind` to the Writer as a `series_info` block, and records progress in both `series.config.json` (the plan) and `editorial_state.json` (the ledger). It only links back to a previous part once that part is actually published, so publish each part before drafting the next.
 
 ## After running
 

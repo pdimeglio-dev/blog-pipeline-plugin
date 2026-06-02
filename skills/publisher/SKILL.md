@@ -11,7 +11,7 @@ allowed-tools:
   - Bash(grep *)
   - Bash(ls *)
   - Bash(date *)
-argument-hint: "[project_id] [topic]"
+argument-hint: "[project_id] [topic] | series <series-id> [next]"
 user-invocable: false
 ---
 
@@ -26,14 +26,48 @@ The user may pass 0, 1, or 2 arguments via the `/blog-pipeline:run` slash comman
 - **0 args** — full automatic mode. Score all projects, pick top 1–2.
 - **1 arg** — could be either a `project_id` or a `topic`. If the argument matches a known `project_id` from `projects.config.json` exactly, force that project this run (skip scoring). Otherwise, treat it as a topic and let normal scoring pick the project.
 - **2 args** — first is the `project_id`, second is the topic. Force that project AND pass the topic to Writer.
+- **`series` form** — if the **first token is the literal word `series`**, this is **series mode**. The second token is a `<series-id>`; an optional third token `next` is accepted and ignored (it reads naturally, e.g. `series batcave-build next`). No real `project_id` equals `"series"`, so this is unambiguous. Set `SERIES_MODE = true` and `SERIES_ID = <series-id>`. Skip the `FORCED_PROJECT_ID` / `TOPIC` parsing below and go to Step 0b.
 
 Topic strings are free-form natural language (e.g. `"outbox shadow mode"`, `"the new Strava webhook idempotency fix"`). The topic biases which Reporter content becomes the post's main subject.
 
 Resolve the args before bootstrapping state:
+- Set `SERIES_MODE` (false unless the series form matched) and `SERIES_ID` (empty otherwise)
 - Set `FORCED_PROJECT_ID` (empty string if not forced)
 - Set `TOPIC` (empty string if no topic given)
 
 Log the resolved values in the run summary (Step 6).
+
+### 0b. Resolve series (series mode only)
+
+**Only when `SERIES_MODE` is true.** Otherwise skip this step.
+
+**Check for series.config.json**: test whether `$PLUGIN_ROOT/series.config.json` exists.
+- If it does **not** exist: tell the user the file was not found and offer to create an empty one (`{ "series": [] }`). Ask for approval before writing. If the user approves, write the file and continue (the series lookup below will then produce "not found", which is the correct outcome — prompt the user to add the series definition). If the user declines, stop.
+
+Read `$PLUGIN_ROOT/series.config.json`. Find the series whose `id` equals `SERIES_ID`. If none, print `Series '<id>' not found in series.config.json — add it to the file first.` and stop.
+
+- Pick the **next part to draft**: the part with the lowest `order` whose `status` is `"planned"`. If every part is `drafted` or `published`, print `Series <id> complete — all parts already drafted or published.` and stop.
+- Set `FORCED_PROJECT_ID` to the series' `project_id` so the rest of the pipeline runs only that project (Steps 3b/3c/4 already branch on `FORCED_PROJECT_ID`).
+- Resolve `previous_part` for the backlink: read `editorial_state.json` `series.<SERIES_ID>.parts` (see Step 4d for the shape) and find the highest-`order` part **below the current part** whose `status` is `"published"`. Use its `slug` + `title`. If none qualifies (no earlier part is published yet), `previous_part` is `null`. **Only published parts qualify** — never link to a draft, since the Writer's accuracy check would strip the link anyway and a live post must not 404.
+- Build the `series_info` object to pass to the Writer in Step 4b:
+
+```json
+{
+  "series_name": "<series.title>",
+  "series_id": "<SERIES_ID>",
+  "order": <part.order>,
+  "total_parts": <series.parts.length>,
+  "kind": "<part.kind>",
+  "brief": "<part.brief>",
+  "previous_part": { "slug": "...", "title": "..." },
+  "upcoming_parts": [
+    { "order": 2, "brief": "<part.brief for order 2>" },
+    { "order": 3, "brief": "<part.brief for order 3>" }
+  ]
+}
+```
+
+`total_parts` is computed here (`parts.length`) so the Writer never reads `series.config.json` itself. `upcoming_parts` contains all parts with `order` **greater than** the current part's order, in ascending order — regardless of their `status`. This gives the Writer the correct sequence for any "what's coming" teaser.
 
 ### 1. Load config
 
@@ -103,7 +137,7 @@ Sort remaining projects by score descending.
 
 ### 3b. Run Reporter on all viable projects
 
-**If `FORCED_PROJECT_ID` is set**: run Reporter only for that one project. Cooldown and monthly cap are bypassed when forced. Skip to Step 4 after — do not show the human selection checkpoint.
+**If `FORCED_PROJECT_ID` is set** (this includes series mode, which sets it in Step 0b): run Reporter only for that one project. Cooldown and monthly cap are bypassed when forced. Skip to Step 4 after — do not show the human selection checkpoint. **Series mode relies on this bypass**: a multi-part arc must not be blocked by `min_days_between_posts` or `max_posts_per_month`, and because scoring is skipped entirely, neither penalty is ever evaluated for series parts.
 
 **Otherwise**: for each project not marked capped or already-drafted-today, invoke the Reporter agent via the `Agent` tool with `subagent_type: "blog-pipeline:reporter"`, passing the project `id` in the prompt. Collect all results before continuing.
 
@@ -140,6 +174,12 @@ For each selected project in order (or the forced project if in forced mode):
 
 Check `projects[id].has_intro_post` in the state. If `false`, this is an intro post run. Set `intro_mode = true`.
 
+**In series mode**, the part's `kind` drives the Writer mode, not `has_intro_post`:
+- `kind: "intro"` → treat as `intro_mode = true`.
+- `kind: "agent-profile"` or `"deep-dive"` → `intro_mode = false` (the `series_info` block tells the Writer which structure to use).
+
+If `kind: "intro"` and the project's `has_intro_post` is `false`, still set `has_intro_post = true` on a successful pass in Step 4d, so a later automatic run doesn't generate a duplicate intro.
+
 #### 4b. Run Writer
 
 Invoke the Writer agent via the `Agent` tool with `subagent_type: "blog-pipeline:writer"`. Embed the full Reporter JSON (collected in Step 3b) inline in the prompt, followed by the intro mode instruction if applicable.
@@ -170,6 +210,17 @@ This is the subject the user wants this post to be about. Pick the matching cont
 
 Intro mode + topic hint can combine — an intro post can still be biased toward a topic for the "what's been shipped" and "what's being worked on now" sections.
 
+**Series mode** (when `SERIES_MODE` is true): append the `series_info` JSON block (built in Step 0b) after the Reporter JSON instead of a topic hint. **Do not also send a `Topic hint:` line** — the `brief` inside `series_info` is the subject. The `kind` field inside `series_info` selects the Writer's structure, so you do not need the separate intro-mode prompt text; just include the block:
+
+```
+Here is the Reporter JSON for project <id>. This post is one part of a series — see the series_info block below for the part's brief, kind, and structure.
+
+<reporter_json>
+
+series_info:
+<series_info_json>
+```
+
 Capture the Writer's return JSON. If it contains an `error` key, log the error and skip Rater for this project. Still update state with `status: "error"`.
 
 #### 4c. Run Rater
@@ -192,15 +243,34 @@ Append to `projects[id].draft_queue`:
   "rater_pass": true,
   "intro_mode": false,
   "created_at": "<today YYYY-MM-DD>",
-  "status": "pending_review"
+  "status": "pending_review",
+  "series_id": null,
+  "series_order": null
 }
 ```
+
+In **series mode**, set `series_id` to `SERIES_ID` and `series_order` to the part's `order` (the Deployer reads these to advance series status on publish). For non-series drafts, leave both `null`.
 
 If Rater failed (`pass: false`): set `status: "rejected"`. The MDX file stays on disk with `published: false` — do not delete it. Pablo can inspect it.
 
 If Rater passed AND this was an intro post: set `projects[id].has_intro_post = true` in the state.
 
 If Rater passed: update `projects[id].last_posted = today` and increment `projects[id].posts_this_month`.
+
+**Series-mode state writes** (only when `SERIES_MODE`, regardless of pass/fail — record what was drafted): maintain a top-level `series` map in `editorial_state.json` keyed by series id (create it if absent), and record this part:
+
+```json
+"series": {
+  "<SERIES_ID>": {
+    "project_id": "<project_id>",
+    "parts": {
+      "<order>": { "status": "drafted", "slug": "<slug>", "title": "<title>", "drafted_at": "<today>" }
+    }
+  }
+}
+```
+
+Then flip the same part's `status` to `"drafted"` in `$PLUGIN_ROOT/series.config.json` so the plan reflects reality and the next `series … next` run picks the following part. (If Rater failed, still record the draft in the ledger but leave the `series.config.json` part as `"planned"` so it is re-attempted — and note the rejection in the run summary.) `series.config.json` is the plan; `editorial_state.json` is the ledger. The Deployer flips both to `"published"` later.
 
 ### 5. Write editorial_state.json
 
@@ -215,7 +285,7 @@ Print a plain-text summary to the user:
 ```
 Blog pipeline run — <date>
 
-Mode: <automatic | forced project: <id> | topic: "<topic>" | both>
+Mode: <automatic | forced project: <id> | topic: "<topic>" | both | series: <id> (part <order>/<total>)>
 
 Projects attempted: <n>
 Drafts produced: <n>
