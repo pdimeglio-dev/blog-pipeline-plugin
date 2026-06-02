@@ -155,11 +155,11 @@ Manual flow (if needed):
 
 ## State
 
-`editorial_state.json` lives in the dimeglio.dev repo root. It tracks run history, draft queue, and per-project intro/posting status. It is **not** auto-committed — commit it manually when you want to persist state across machines:
+`editorial_state.json` lives in the plugin root alongside `projects.config.json` and `series.config.json`. It tracks run history, draft queue, and per-project intro/posting status. It is **not** auto-committed — commit it manually when you want to persist state across machines:
 
 ```bash
-git -C ~/Development/dimeglio.dev add editorial_state.json
-git -C ~/Development/dimeglio.dev commit -m "chore: update editorial state"
+git -C ~/Development/blog-pipeline-plugin add editorial_state.json series.config.json
+git -C ~/Development/blog-pipeline-plugin commit -m "chore: update pipeline state"
 ```
 
 ## Cost

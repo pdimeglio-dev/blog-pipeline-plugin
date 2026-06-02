@@ -29,7 +29,7 @@ Runs the full blog pipeline: selects projects, generates drafts, scores them, an
 3. Scores all configured projects (unless forced) and selects the top 1–2
 4. For each selected project: runs Reporter → Writer → Rater
 5. Drops rated-pass drafts into `dimeglio.dev/content/blog/` with `published: false`
-6. Updates `dimeglio.dev/editorial_state.json` with run history and draft queue
+6. Updates `editorial_state.json` (in plugin root) with run history and draft queue
 7. Prints a summary of what was produced, rejected, or skipped
 
 First post for any project is automatically an architectural overview — the pipeline detects whether a project has had its intro post yet. The topic hint still applies in intro mode.

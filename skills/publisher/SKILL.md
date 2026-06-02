@@ -79,7 +79,7 @@ Read `$PLUGIN_ROOT/projects.config.json`. Extract:
 
 ### 2. Bootstrap editorial_state.json
 
-State file lives at `${dimeglio_dev_path}/editorial_state.json`.
+State file lives at `$PLUGIN_ROOT/editorial_state.json`.
 
 If it does not exist, create it:
 
@@ -274,7 +274,7 @@ Then flip the same part's `status` to `"drafted"` in `$PLUGIN_ROOT/series.config
 
 ### 5. Write editorial_state.json
 
-Update `last_run` to the current ISO timestamp. Write the full updated state back to `${dimeglio_dev_path}/editorial_state.json`.
+Update `last_run` to the current ISO timestamp. Write the full updated state back to `$PLUGIN_ROOT/editorial_state.json`.
 
 Do **not** commit the state file — leave that to Pablo.
 
