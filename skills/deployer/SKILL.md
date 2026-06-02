@@ -175,6 +175,7 @@ Read the state file, find the matching `draft_queue` entry by slug, get the `pro
 - `projects.<id>.posts_this_month` → increment by 1
 - `projects.<id>.draft_queue` → remove the entry with this slug
 - `projects.<id>.has_intro_post` → set to `true` if the removed entry had `intro_mode: true`
+- **Series parts**: if the removed entry had a non-null `series_id` + `series_order`, set `series.<series_id>.parts.<series_order>.status = "published"` in the same state file, and flip that part's `status` to `"published"` in `$PLUGIN_ROOT/series.config.json`.
 
 Use `jq` for atomic JSON edits. Write to a temp file then `mv` to replace.
 
@@ -201,16 +202,41 @@ else
     | .intro_mode
   ' "$STATE_FILE" | head -1)
 
+  # Capture series membership before removing the draft_queue entry
+  SERIES_ID=$(jq -r --arg slug "$SLUG" --arg pid "$PROJECT_ID" '
+    .projects[$pid].draft_queue[] | select(.slug == $slug) | .series_id // empty
+  ' "$STATE_FILE" | head -1)
+  SERIES_ORDER=$(jq -r --arg slug "$SLUG" --arg pid "$PROJECT_ID" '
+    .projects[$pid].draft_queue[] | select(.slug == $slug) | .series_order // empty
+  ' "$STATE_FILE" | head -1)
+
   jq --arg slug "$SLUG" --arg pid "$PROJECT_ID" --arg today "$TODAY" --argjson was_intro "$WAS_INTRO" '
     .projects[$pid].last_posted = $today
     | .projects[$pid].posts_this_month = (.projects[$pid].posts_this_month + 1)
     | .projects[$pid].draft_queue = [.projects[$pid].draft_queue[] | select(.slug != $slug)]
     | (if $was_intro == true then .projects[$pid].has_intro_post = true else . end)
   ' "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
+
+  # Advance series status (ledger + plan) when this draft was a series part
+  if [ -n "$SERIES_ID" ] && [ -n "$SERIES_ORDER" ]; then
+    jq --arg sid "$SERIES_ID" --arg ord "$SERIES_ORDER" '
+      .series[$sid].parts[$ord].status = "published"
+    ' "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
+
+    PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-/Users/pablo/Development/blog-pipeline-plugin}"
+    SERIES_CFG="$PLUGIN_ROOT/series.config.json"
+    if [ -f "$SERIES_CFG" ]; then
+      jq --arg sid "$SERIES_ID" --argjson ord "$SERIES_ORDER" '
+        .series |= map(if .id == $sid
+          then .parts |= map(if .order == $ord then .status = "published" else . end)
+          else . end)
+      ' "$SERIES_CFG" > "${SERIES_CFG}.tmp" && mv "${SERIES_CFG}.tmp" "$SERIES_CFG"
+    fi
+  fi
 fi
 ```
 
-The editorial_state update is **not** auto-committed — that's intentional (per existing plugin convention). The user commits state manually when they want it persisted across machines.
+The editorial_state update is **not** auto-committed — that's intentional (per existing plugin convention). The user commits state manually when they want it persisted across machines. The `series.config.json` flip lives in the plugin repo (not the site repo), so it is never swept into the site commit; commit it in the plugin repo when you want the plan persisted.
 
 ### 8.5. Generate social copy
 

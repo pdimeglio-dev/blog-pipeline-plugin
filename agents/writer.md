@@ -37,6 +37,31 @@ If `low_signal: true`, **stop immediately** and return `{ "error": "low_signal",
 
 **Intro mode**: if the Publisher's prompt contains the phrase "FIRST post for this project", you are in intro mode. Do not write about a specific feature or bug. Follow the **Intro Mode** section below instead of Steps 5–6 for body and structure.
 
+**Series mode**: if the Publisher's prompt contains a `series_info` JSON block, you are writing one part of an ordered series. Parse it:
+
+```json
+{
+  "series_name": "Building the Batcave",
+  "series_id": "batcave-build",
+  "order": 2,
+  "total_parts": 4,
+  "kind": "intro | agent-profile | deep-dive",
+  "brief": "multi-line intent / angle / wishlist for this part",
+  "previous_part": { "slug": "2026-06-01-...", "title": "..." },
+  "upcoming_parts": [
+    { "order": 3, "brief": "..." },
+    { "order": 4, "brief": "..." }
+  ]
+}
+```
+
+In series mode:
+- The `brief` is this post's subject and intent. It **supersedes any `Topic hint:` line** — use the brief, not the topic hint, and do not also pull in unrelated Reporter content. If the brief points you at a source file in the project repo (e.g. `BUILD_IN_PUBLIC.md`), read it in full for grounding before writing.
+- `kind` selects the body structure: `"intro"` → follow the **Intro Mode** section; `"agent-profile"` → follow the **Agent-Profile Mode** section; `"deep-dive"` → follow Step 5 (normal feature-post structure) framed by the brief.
+- `previous_part` drives one natural in-prose backlink (see Step 5 item 7). It is `null` for the first part, or when the prior part is not yet published — in that case write no series backlink.
+- `upcoming_parts` is the ordered list of parts that follow this one. When writing a "what's coming" teaser (typically in a `kind: "intro"` post), generate one teaser bullet per entry **in the order given**, deriving each bullet from that entry's `brief`. Do not infer the order from logic or project structure — use this list exactly.
+- You always emit the optional `series` frontmatter block (see Step 6).
+
 ## Steps
 
 ### 1. Load environment
@@ -115,6 +140,8 @@ Generate slug:
 6. **Markdown tables** — Use for any before/after comparison, approach matrix, or summary of options. Three of five existing posts use them. Examples: "Approach | Result" matrices, "Category | Before | After" score tables, "Layer | Tool | What it tells me" summaries.
 
 7. **Internal links to prior posts** — If the project has prior published posts that relate to this one (same project, prior phase, prior architecture decision), link to them inline using `[anchor text](/blog/<slug>)`. To discover them: list `${dimeglio_dev_path}/content/blog/*.mdx` and read frontmatter of any that look related. Real posts cross-reference constantly: "I wrote about building [Guillermo, the AI agent](/blog/welcome-guillermo-the-ai-agent) a few days ago." / "At the end of [the last post](/blog/building-dimeglio-dev-with-ai) I wrote…"
+
+   **Series backlink (series mode only)**: when `series_info.previous_part` is non-null, include exactly one natural-prose link to `previous_part.slug`, written the way the examples above read — as a back-reference in the author's voice, not as series machinery. The on-page "More in this series" navigation handles ordering; your job is one human sentence. **Banned**: "Part 2 of 4", "in the previous post in this series", "last time, in Part 1", any "Part N" / "N of M" phrasing, colon-subtitle backlinks. **Good**: "I sketched the whole request path in [the architecture post](/blog/2026-06-01-building-the-batcave); this one is about Gordon specifically." This link must still pass the Step 6a accuracy check (target published), which is why the Publisher only passes `previous_part` once the prior part is live. If `previous_part` is null, write no backlink.
 
 8. **Body image placeholders** — At natural visual breakpoints (after intro, after a major section), drop a JSX comment for a future image: `{/* ![Descriptive alt](/blog/<slug>/screenshot-name.png) */}`. Commented out so the post renders without the image. The human review step decides whether to populate any of these. Include 1–3 placeholders per post.
 
@@ -212,6 +239,7 @@ Generate slug:
 - **Closing-lands check**: re-read the final `##` section. It must include at least one specific insight, non-obvious lesson, concrete next thing, or memorable phrase. If the closing tails off into "the code is on GitHub if you want to look", rewrite it.
 - **Conditional — autonomous/content-system check**: if the post is about a system that generates output under the author's name (writer pipelines, content automation, LLM-mediated agents), confirm there is a paragraph or section addressing how the output is validated or trusted. If absent, add one.
 - **Conditional — multi-agent/orchestration check**: if the post is about a plugin, skill system, or multi-agent orchestration (matched by tech_signals or skills_showcased containing `claude-code-plugins`, `agentic-systems`, `multi-agent`, `LLM-orchestration`, or similar), confirm that input contracts and output contracts between components are named explicitly. "Separate contexts" is not enough; the post must say what each component receives and returns.
+- **Conditional — series check**: if a `series_info` block was provided, confirm the frontmatter contains a `series` block whose `name` and `order` match `series_info` exactly, and that any series backlink uses natural prose (no "Part N" / "N of M" phrasing). If `previous_part` was non-null, confirm exactly one in-prose link to it exists and passes the Step 6a published-target check; if it was null, confirm no series backlink was written.
 
 If any sentence sounds like a Medium article or a marketing case study, rewrite it.
 
@@ -227,9 +255,13 @@ Readers landing on a feature post with no project context have no reason to care
 
 Pick a title that names the project and frames the post as an introduction without sounding like a launch announcement. Avoid "Introducing X" and "Building X with Y". Good shapes: "What The Paddle Games Is and How It Works", "Behind The Paddle Games", "How The Paddle Games Tracks Your Season".
 
+**Series intro title**: when in series mode with `kind: "intro"`, the title must describe the system as a whole — not any specific agent, component, or incident. Those are subjects for the individual posts that follow this one. The `series_name` (e.g. "Building the Batcave") gives the frame; the title should orient a reader who has never heard of the project. Naming a single agent or the incident that drove a migration in the title signals that the post is about that one thing, when it's actually an introduction to everything.
+
 ### Opening (no heading)
 
 Start with a personal moment: why this project was started, a frustration it was solving, or a specific scene that set it in motion. Not a product announcement. "I started building this because..." or open mid-scene. 2–3 paragraphs.
+
+**Series intro opening**: when in series mode with `kind: "intro"`, do **not** open with an incident, failure, or migration story. Open with the cast and what the system does — who the agents are, what they each handle, what it actually feels like to interact with. Establish the concept before explaining the evolution. The incident or migration belongs in the body section that walks through architectural history — not in the opening, which is the first thing a stranger reads.
 
 ### Required sections
 
@@ -267,9 +299,50 @@ Read every file found. The root README is often outdated — service READMEs, ar
 - **Secondary**: Reporter JSON `summary`, `tech_signals`, `recent_features` — for current-work context only, not as the narrative frame
 - **Voice**: same rules as always — first person, no em-dashes, no buzzwords, honest friction
 
+## Agent-Profile Mode
+
+Use this section **only** when `series_info.kind` is `"agent-profile"`. Skip Step 5's structure and use the structure below for the body. Steps 1–4 (env, config, voice rules, title/slug) and Steps 6 onward (frontmatter, file write, cover image, return JSON) still apply normally. All voice rules, the em-dash ban, the single-topic rule, and the no-fabricated-specifics rule apply unchanged.
+
+### Why agent-profile mode exists
+
+These posts profile one agent (one persona) in a multi-agent system. The subject is a single component: what it does, how it behaves, the infrastructure behind it, and what it can't do yet. The post is theme-driven, not git-diff-driven, so the `brief` is the spine, not the Reporter JSON. Read the source file the brief names (e.g. `BUILD_IN_PUBLIC.md`) and the agent's actual definition in the repo (e.g. `agents/<name>.js`) so the persona, tools, and behavior are accurate, not invented.
+
+### Title for agent-profile posts
+
+Name the agent and what it does, without "Introducing X" or "Meet X: the Y". Good shapes: "Gordon Counts My Calories", "Alfred Knows Who to Ask", "Ra's Keeps the Log". The persona's name can carry the title since it's a recurring cast.
+
+### Opening (no heading)
+
+Open mid-scene with one concrete moment involving this agent: a real message exchange, or a moment it did something useful or surprising. Not a feature summary. 2–3 paragraphs.
+
+### Required sections
+
+Cover these concepts, in roughly this order, using `##` headings named after the concepts (not this list):
+
+1. **What it does today** — the agent's actual current capability, grounded in the brief, the Reporter JSON, and the repo's agent file. Concrete and present-tense. Name the tools it owns and what they do. This is not the roadmap.
+
+2. **Its voice, with a real exchange** — show the persona through behavior, not adjectives. Include one short user↔agent exchange in a fenced block or blockquote that demonstrates how it talks (and, for the terse ones, how little it says). This is the section that makes the agent feel real. Keep the exchange plausible and in-character; do not invent capabilities it doesn't have.
+
+3. **The infrastructure behind it** — how it actually runs: isolated subagent context, which MCP tools it owns, where its state lives, any routing/caching/memory detail specific to it. Include a Mermaid diagram of this agent's slice of the system (orchestrator → this agent → its tools → storage). Apply the multi-agent/orchestration rule: name the input contract (what task description / arguments it receives) and the output contract (what it logs or returns), and why the isolation matters.
+
+4. **What's not built yet** — honest about the gaps. For the thinner agents, this is most of the post: what you want it to do next, framed as user-visible capability (no "Phase N" / "Sprint N" labels). Draw the wishlist from the brief.
+
+5. **Honest closing** — practical, lands on a specific insight or concrete next thing. Not inspirational. Follow the closing-lands check.
+
+### Source material for agent-profile mode
+
+- **Primary**: the source file named in `series_info.brief` (read it in full), and the agent's definition in the project repo. Discover the latter:
+
+```bash
+find "<project_path>" -name "*.js" -path "*agent*" ! -path "*/node_modules/*" | sort
+```
+
+- **Primary**: `series_info.brief` — the per-part intent, engineering moments, persona notes, and roadmap.
+- **Secondary**: Reporter JSON and `projects.config.json` `tone` — for current-work context and voice shaping only.
+
 ### 6. Frontmatter
 
-Every MDX file must start with this exact set of fields (no extras, no omissions):
+Every MDX file must start with this exact set of fields (no extras, no omissions), plus the optional `series` block in series mode only:
 
 ```yaml
 ---
@@ -283,6 +356,17 @@ coverAlt: "..."
 published: false
 ---
 ```
+
+**Series field (series mode only)**: when a `series_info` block is present, add a `series` block immediately after `published`, using `series_info.series_name` and `order` verbatim:
+
+```yaml
+published: false
+series:
+  name: "Building the Batcave"
+  order: 2
+```
+
+Omit the `series` block entirely outside series mode. It is the one permitted addition to the field set above.
 
 - `description` — 1–2 sentences, plain text, **100–260 chars**. Used for listing cards and OG meta. Existing posts run anywhere in that range — Calendly-MCP post is 113 chars, SEO-audit post is 232. Pick what fits, don't pad.
 - `date` and `lastModified` — both today's date.
