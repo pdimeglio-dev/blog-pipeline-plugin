@@ -73,6 +73,23 @@ Extract from the matching project entry (all optional — skip gracefully if abs
 
 These are used in Step 2 (LinkedIn link line + CTA) and Step 3 (X final tweet + CTA). If no project matches or the project has no `social` object, proceed without handles.
 
+### 1c. Check for series context
+
+Read the `series` field from the MDX frontmatter (optional — skip if absent):
+- `series.name` — e.g. `"Building the Batcave"`
+- `series.order` — e.g. `1`
+
+If present, read `$PLUGIN_ROOT/series.config.json`. Find the series whose `title` matches `series.name`. Extract all parts with `order > series.order` (ascending) as `upcoming_parts`.
+
+Store as `SERIES_INFO`:
+- `is_series: true`
+- `series_name` — the series title
+- `current_order` — this post's order
+- `total_parts` — `series.parts.length`
+- `next_part_brief` — the `brief` of the part with `order = current_order + 1` (null if this is the last part)
+
+If `series` is absent from frontmatter, set `SERIES_INFO.is_series = false` and skip the series tease in Steps 2 and 3.
+
 ### 2. Write LinkedIn copy
 
 **Length: 60–120 words. Hard cap 150.** Count carefully. Anything over 150 is doing the blog's job. The current sweet spot is around 100 words — enough to explain why you built it, what it does, one human moment, and a question.
@@ -107,9 +124,11 @@ These are used in Step 2 (LinkedIn link line + CTA) and Step 3 (X final tweet + 
 
 4. **CTA (when `goToMarketState` is `live`).** If the project config has `goToMarketState: "live"` and a `liveUrl`, include an explicit invitation to join or try the product before the link line. Name the community or sport types if the product targets a specific one (derive from `tone` or `skills_showcased` in project config — e.g. "SUP, kayak, canoe, surf, row" for a paddle sports app). The invitation should name the action: "connect your Strava account and join", "sign up", "try it". A passive "the app is live at X" does not satisfy this — it must be a direct invitation. Example: "If you paddle (SUP, kayak, canoe, surf, row, anything), connect your Strava account and join at thepaddlegames.com."
 
-5. **Link line.** "Full post → dimeglio.dev/blog/<slug>". If the project has a `social.instagram` or `social.x` handle, always append it: "Full post → dimeglio.dev/blog/<slug> | @handle on Instagram". This is not optional when a handle exists — include it every time.
+5. **Series tease (series posts only).** When `SERIES_INFO.is_series` is true, insert a short paragraph before the link line. State which part this is and what's coming next. One or two sentences max. Derive the "next up" subject from `SERIES_INFO.next_part_brief` — a short phrase naming the subject, not the brief verbatim. Example: "This is the first post in a four-part series. Next up: Gordon." Do NOT list all remaining parts — just the next one. Omit this paragraph entirely when `is_series` is false.
 
-6. **War-story question (1 sentence).** Ask for a **specific experience**, not an opinion. Specific experiences are easier to answer in a comment.
+6. **Link line.** For series posts and multi-topic architecture posts, lead the link line with the topics covered rather than just "Full post →". Name what the post goes into without revealing the findings. Example: "Architecture, production deployment, memory model, and reliability design in the full post: dimeglio.dev/blog/<slug>". For single-topic posts, "Full post → dimeglio.dev/blog/<slug>" is fine. If the project has a `social.instagram` or `social.x` handle, always append it. This is not optional when a handle exists — include it every time.
+
+7. **War-story question (1 sentence).** Ask for a **specific experience**, not an opinion. Specific experiences are easier to answer in a comment.
 
    - ✅ "Has anyone else caught their LLM evaluator inflating scores when it could see the source data?"
    - ✅ "What did you find when you tried isolating evaluators from source material?"
@@ -164,7 +183,9 @@ If the project has only `social.instagram` (no `social.x`), include it anyway: `
 
 **CTA tweet (when `goToMarketState` is `live`).** If the project is live, add a dedicated CTA as the final tweet (shifting the takeaway/link tweet to second-to-last if needed, keeping total under 3 if possible; up to 4 only when CTA pushes the count). Name the community or sport types explicitly. Example: "If you SUP, kayak, canoe, surf, or row, connect your Strava account and join. Architecture overview → <link> | @handle on Instagram". This makes the thread end with both an honest reflection AND an invitation.
 
-**Leave something for the post.** Same rule as LinkedIn — direct about the what and why, the depth lives in the post.
+**Series posts on X.** When `SERIES_INFO.is_series` is true, include `"Part N of M."` and the next subject in the single tweet or final tweet. Keep it tight — `"Part 1 of 4. Gordon is next."` is enough. Derive the next subject from `next_part_brief`, not from internal names or slugs.
+
+**Leave something for the post.** Same rule as LinkedIn — direct about the what and why, the depth lives in the post. For multi-topic posts (architecture overviews, system introductions), name the topics covered without revealing the findings: `"Architecture, deployment, memory model, and reliability design in the full post: [link]"` is better than summarising what you learned about each.
 
 **Personality (fun but professional).** Same rule as LinkedIn — minimum one moment of personality per X draft (single tweet or thread). Same examples, same boundaries, same meta-post bonus.
 
