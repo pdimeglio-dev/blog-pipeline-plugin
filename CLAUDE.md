@@ -56,7 +56,7 @@ Build sequentially — each phase depends on the previous output contract.
 - **Draft queue:** `published: false` files in the dimeglio.dev repo — no separate store
 - **Images:** DALL-E 3 via existing `OPENAI_API_KEY` (same key as ingest embeddings) → `public/blog/<slug>/cover.png`
 - **Social output:** Copy-paste text only — no direct API posting
-- **State file:** `editorial_state.json` committed to `dimeglio.dev/` repo root
+- **State file:** `editorial_state.json` lives in the plugin root alongside `projects.config.json` and `series.config.json`
 
 ## Critical External Dependency — dimeglio.dev AGENTS.md
 

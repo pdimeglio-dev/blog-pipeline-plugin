@@ -15,7 +15,7 @@ Run this before `/blog-pipeline:run` to see what's queued and which projects are
 
 ## Implementation
 
-Read `${dimeglio_dev_path}/editorial_state.json` from `projects.config.json`. If the file does not exist, print: "No pipeline runs yet. Run `/blog-pipeline:run` to start."
+Read `$PLUGIN_ROOT/editorial_state.json` (same root as `projects.config.json`). If the file does not exist, print: "No pipeline runs yet. Run `/blog-pipeline:run` to start."
 
 Format the output as a readable summary:
 

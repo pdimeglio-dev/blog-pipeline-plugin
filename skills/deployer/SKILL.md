@@ -180,7 +180,7 @@ Read the state file, find the matching `draft_queue` entry by slug, get the `pro
 Use `jq` for atomic JSON edits. Write to a temp file then `mv` to replace.
 
 ```bash
-STATE_FILE="${DIMEGLIO_DEV_PATH}/editorial_state.json"
+STATE_FILE="${PLUGIN_ROOT}/editorial_state.json"
 TODAY=$(date +%Y-%m-%d)
 
 # Find the project_id whose draft_queue contains this slug
@@ -236,7 +236,7 @@ else
 fi
 ```
 
-The editorial_state update is **not** auto-committed — that's intentional (per existing plugin convention). The user commits state manually when they want it persisted across machines. The `series.config.json` flip lives in the plugin repo (not the site repo), so it is never swept into the site commit; commit it in the plugin repo when you want the plan persisted.
+The editorial_state update is **not** auto-committed — that's intentional (per existing plugin convention). Both `editorial_state.json` and `series.config.json` live in the plugin repo. Commit them together in the plugin when you want state persisted across machines.
 
 ### 8.5. Generate social copy
 

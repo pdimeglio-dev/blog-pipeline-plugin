@@ -1,0 +1,173 @@
+{
+  "last_run": "2026-06-01T15:20:00Z",
+  "projects": {
+    "paddle-games": {
+      "last_posted": "2026-05-26",
+      "posts_this_month": 3,
+      "has_intro_post": true,
+      "draft_queue": [],
+      "run_history": [
+        {
+          "date": "2026-05-12",
+          "slug": "2026-05-12-behind-the-paddle-games",
+          "result": "published",
+          "rater_composite": 8.1
+        },
+        {
+          "date": "2026-05-20",
+          "slug": "2026-05-20-paddle-games-got-a-notifications-inbox",
+          "result": "published",
+          "rater_composite": 8.0,
+          "commit_sha": "8918355"
+        },
+        {
+          "date": "2026-05-26",
+          "slug": "2026-05-26-every-named-route-now-has-a-leaderboard",
+          "result": "rejected",
+          "rater_composite": 8.3,
+          "reason": "voice_flags: false positive -- Rater claimed internal link target was unpublished, but the linked notifications-inbox post is published:true on disk"
+        },
+        {
+          "date": "2026-05-26",
+          "slug": "2026-05-26-every-named-route-now-has-a-leaderboard",
+          "result": "published",
+          "rater_composite": 8.1,
+          "commit_sha": "e0e4f02"
+        }
+      ]
+    },
+    "dimeglio-dev": {
+      "last_posted": "2026-04-23",
+      "posts_this_month": 0,
+      "has_intro_post": true,
+      "draft_queue": [],
+      "run_history": [
+        {
+          "date": "2026-04-12",
+          "slug": "building-dimeglio-dev-with-ai",
+          "result": "published"
+        },
+        {
+          "date": "2026-04-15",
+          "slug": "welcome-guillermo-the-ai-agent",
+          "result": "published"
+        },
+        {
+          "date": "2026-04-19",
+          "slug": "observability-stack",
+          "result": "published"
+        },
+        {
+          "date": "2026-04-23",
+          "slug": "mcp-in-production-scheduling",
+          "result": "published"
+        },
+        {
+          "date": "2026-05-12",
+          "slug": null,
+          "result": "skipped",
+          "reason": "low_signal"
+        },
+        {
+          "date": "2026-05-20",
+          "slug": "2026-05-20-portfolio-site-with-too-many-moving-parts",
+          "result": "discarded",
+          "reason": "produced as intro post due to stale has_intro_post=false; project already had 4 intros"
+        },
+        {
+          "date": "2026-05-21",
+          "slug": null,
+          "result": "skipped",
+          "reason": "not selected by user"
+        }
+      ]
+    },
+    "blog-pipeline-plugin": {
+      "last_posted": "2026-05-14",
+      "posts_this_month": 1,
+      "has_intro_post": true,
+      "draft_queue": [
+        {
+          "slug": "2026-05-21-rater-and-writer-had-different-rules",
+          "title": "My Rater and Writer Had Different Rules for Two Weeks",
+          "mdx_path": "/Users/pablo/Development/dimeglio.dev/content/blog/2026-05-21-rater-and-writer-had-different-rules.mdx",
+          "cover_ok": true,
+          "rater_composite": 8.9,
+          "rater_pass": false,
+          "intro_mode": false,
+          "created_at": "2026-05-21",
+          "status": "rejected"
+        }
+      ],
+      "run_history": [
+        {
+          "date": "2026-05-14",
+          "slug": "2026-05-14-pipeline-writes-my-blog-posts",
+          "result": "published",
+          "rater_composite": 7.3
+        },
+        {
+          "date": "2026-05-21",
+          "slug": "2026-05-21-rater-and-writer-had-different-rules",
+          "result": "rejected",
+          "rater_composite": 8.9,
+          "reason": "voice_flags: false positives -- banned phrases appear as quoted examples in post body, not as post voice"
+        }
+      ]
+    },
+    "project-batcave": {
+      "last_posted": "2026-06-01",
+      "posts_this_month": 1,
+      "has_intro_post": true,
+      "draft_queue": [
+        {
+          "slug": "2026-06-01-behind-project-batcave-multi-agent-architecture",
+          "title": "Behind Project Batcave: A Multi-Agent Architecture Inspired by the Batman Universe",
+          "mdx_path": "/Users/pablo/Development/dimeglio.dev/content/blog/2026-06-01-behind-project-batcave-multi-agent-architecture.mdx",
+          "cover_ok": true,
+          "rater_composite": 8.4,
+          "rater_pass": true,
+          "intro_mode": true,
+          "created_at": "2026-06-01",
+          "status": "pending_review",
+          "series_id": "batcave-build",
+          "series_order": 1
+        }
+      ],
+      "run_history": [
+        {
+          "date": "2026-05-20",
+          "slug": null,
+          "result": "skipped",
+          "reason": "repo not found at path"
+        },
+        {
+          "date": "2026-05-21",
+          "slug": null,
+          "result": "skipped",
+          "reason": "repo not found at path"
+        },
+        {
+          "date": "2026-06-01",
+          "slug": "2026-06-01-behind-project-batcave-multi-agent-architecture",
+          "result": "published",
+          "series_id": "batcave-build",
+          "series_order": 1
+        }
+      ]
+    }
+  },
+  "series": {
+    "batcave-build": {
+      "project_id": "project-batcave",
+      "parts": {
+        "1": {
+          "status": "published",
+          "slug": "2026-06-01-behind-project-batcave-multi-agent-architecture",
+          "title": "Behind Project Batcave: A Multi-Agent Architecture Inspired by the Batman Universe",
+          "drafted_at": "2026-06-01"
+        }
+      }
+    }
+  }
+}

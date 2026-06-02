@@ -97,7 +97,7 @@ Extract from the matched project's `image_theme`:
 Also note whether the post is an intro post — check `editorial_state.json`:
 
 ```bash
-STATE_FILE="${DIMEGLIO_DEV_PATH}/editorial_state.json"
+STATE_FILE="${PLUGIN_ROOT}/editorial_state.json"
 IS_INTRO=0
 if [ -f "$STATE_FILE" ]; then
   WAS_INTRO=$(jq -r --arg slug "$SLUG" '
