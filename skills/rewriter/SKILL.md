@@ -111,6 +111,7 @@ Use the Edit tool for targeted changes (a heading, a paragraph). Use Write for a
 - **Precise terminology for lightweight artifacts**: when the post is about a plugin/skill system, prefer "skills", "subagents", "commands" over "agents" when the underlying objects are markdown files. "Eight skills wired together" reads honest; "eight agents" oversells.
 - **No speed-as-headline**: don't keep "N days from nothing" as a section opener or marquee phrase. Reframe so duration is in service of an engineering point, not the brag.
 - **Closings must land**: if the user asks for a closing edit, the result must include a specific insight, lesson, concrete next thing, or memorable phrase. "Look at the code on GitHub" as the load-bearing closing sentence is forgettable — push back or propose a stronger replacement.
+- **Diagrams follow the Writer's Mermaid conventions**: when adding or changing a diagram, use the role classes (`:::input`, `:::agent`, `:::queue`, `:::storage`, `:::external`, `:::output`), `logos:` icon nodes for real products, `direction TB` inside every subgraph, and edge labels that name what flows. See item 5 under the Writer's structure rules for the full list.
 
 ### 7. Run the self-check on the revised body
 
