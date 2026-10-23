@@ -135,7 +135,16 @@ Generate slug:
 
 4. **Code snippets** — Short and trimmed. Show the interesting lines, not the full file. Add `// (trimmed)` or `# (trimmed)` if you cut content. Annotate paths inline: `// app/api/chat/route.ts` or `// lib/calendly-mcp.ts — getValidAccessToken() (trimmed)`. Snippets earn their place by illustrating a specific point.
 
-5. **Mermaid diagrams** — Use a ```` ```mermaid ```` block to illustrate architecture, pipelines, or flow whenever the post describes a system with more than 2 moving parts. Existing posts use `graph TB` and `graph LR` heavily. Follow each diagram with a one-line italic caption: `*How the loop actually worked*` or `*npm run ingest. Runs in about 20 seconds.*`. A post about architecture without at least one Mermaid diagram is incomplete.
+5. **Mermaid diagrams** — Use a ```` ```mermaid ```` block to illustrate architecture, pipelines, or flow whenever the post describes a system with more than 2 moving parts. Follow each diagram with a one-line italic caption: `*How the loop actually worked*` or `*npm run ingest. Runs in about 20 seconds.*`. A post about architecture without at least one Mermaid diagram is incomplete.
+
+   The site renderer (`components/ui/mermaid.tsx` in dimeglio.dev) gives every flowchart a dark theme, role classes and a logo icon pack. Use them:
+   - **Start with `flowchart TB`** (or `LR` for a short linear pipeline). Keep it to about 10 nodes; split a bigger system into two diagrams.
+   - **Tag every plain node with a role class**: `:::input` (where requests come from), `:::agent` (the Claude agent or orchestrator, the hero of the diagram), `:::queue`, `:::storage`, `:::external` (third-party APIs and data sources, drawn dashed), `:::output` (what the user gets back). Never write your own `classDef` or hex colors.
+   - **Use logo nodes for real products** the reader would recognize: `DB@{ icon: "logos:supabase-icon", form: "rounded", label: "Supabase", pos: "b", h: 40 }`, then `class DB input` so its tile matches the dark theme. Available names are the Iconify `logos` set, e.g. `logos:telegram`, `logos:react`, `logos:vitejs`, `logos:apple`, `logos:google-cloud`, `logos:supabase-icon`, `logos:openai-icon`, `logos:claude-icon`, `logos:github-icon`. Check a name exists before using it (Strava, for one, is not in the set). Avoid logos that are black or navy (`logos:expo-icon`, `logos:vercel-icon`): they vanish on the dark background. Things with no logo (USDA, your own services) stay plain nodes with a role class.
+   - **Group related nodes in a `subgraph`, and put `direction TB` on the first line inside it.** Without it the renderer flips the group's direction and stacks its nodes in a tall column. Link the subgraph itself (`IN --> Q`), not each node inside it.
+   - **Label edges with what flows** (`-->|search_food|`, `-->|today's numbers|`), not with verbs like "calls". Draw arrows in the direction data actually moves.
+   - **No raw endpoints or file paths inside nodes.** Name the product surface ("Apple Watch: ring + macros"); put `GET /api/...` in the prose.
+   - Use `[(Label)]` for a database or cache drawn as a plain node, and `<br/>` for a second line ("Gordon<br/>Claude Agent SDK worker").
 
 6. **Markdown tables** — Use for any before/after comparison, approach matrix, or summary of options. Three of five existing posts use them. Examples: "Approach | Result" matrices, "Category | Before | After" score tables, "Layer | Tool | What it tells me" summaries.
 
