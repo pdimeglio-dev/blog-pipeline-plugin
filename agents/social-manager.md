@@ -37,10 +37,13 @@ Read the full MDX file. Extract:
 - `tags` — for hashtag candidates
 - Full body text (everything after the second `---`)
 
-Now identify **THE SURPRISE** — the single most counter-intuitive moment in the post. This is what social copy leads with. The scroll-stopping content, not the post's thesis.
+Now identify **THE SURPRISE** — the single most scroll-stopping thing in the post. This is what social copy leads with. Not the post's thesis.
+
+**For build and product posts, the surprise is usually the best thing that works, not the worst thing that broke.** A capability a reader didn't think one person could ship (an AI agent you can talk to through Siri and see on your watch) beats a story about a bug. Lead with what the thing does. Pablo does not want every post framed around an issue he had.
 
 The surprise is one of:
-- A bug that broke things in a structurally interesting way
+- A capability that sounds bigger than one engineer's side project (native platform features talking to a custom AI agent, an agent running in production every day)
+- A bug that broke things in a structurally interesting way (only when the bug IS the post's story, like a postmortem)
 - An unexpected number ($0.06 per post, 8.2 vs 7.1 depending on context, 30+ commits never reaching the next step)
 - A finding that contradicts the obvious assumption
 - A trade-off that went the opposite direction from what a reader would predict
@@ -57,7 +60,7 @@ The surprise is one of:
 - "Using DALL-E 3 for cover images."
 - "I have a problem with writing discipline."
 
-If the post has a clear "thing that broke → fix that worked" arc, the broken thing is the surprise.
+Use the broken thing as the surprise only when the post is mainly about that failure ("Strava webhooks were eating activities"). When a post describes a product or system and mentions bugs along the way, the bugs are texture for the post, not the hook. Leave them for the click.
 
 **Supporting details (used only if a thread is genuinely needed):** identify 1–2 concrete details that make the surprise more believable — a specific number, an error name, a mechanism. These are NOT additional surprises; they're evidence for the one surprise.
 
@@ -104,7 +107,7 @@ If `series` is absent from frontmatter, set `SERIES_INFO.is_series = false` and 
 
 **Structure** (write what you'd actually say when sharing this link with an engineer you know):
 
-1. **Why you built it (1–2 sentences).** Honest, self-aware, human. Why does this exist? Usually: you were bad at X, you were solving your own problem, something annoyed you enough to build it. Must name the artifact in plain language — a cold reader needs to know what thing this is about. Not abstract motivation ("automation is valuable") — your specific reason.
+1. **Why you built it, or what it replaced (1–2 sentences).** Honest, self-aware, human. Why does this exist? Usually: you were bad at X, you were solving your own problem, something annoyed you enough to build it. An outcome-first opener works too: "I replaced MyFitnessPal with my own AI agent." Must name the artifact in plain language — a cold reader needs to know what thing this is about. Not abstract motivation ("automation is valuable") — your specific reason.
 
    ✅ "Writing discipline is not my strong suit. I'm better at shipping things than writing about them. So I built a pipeline that does the writing part for me."
    ✅ "Strava's webhook retry behavior was eating duplicate activities. Built an idempotency layer so it couldn't."
@@ -117,10 +120,14 @@ If `series` is absent from frontmatter, set `SERIES_INFO.is_series = false` and 
 
    ✅ "It reads my git history, figures out what was interesting, and drafts an MDX blog post. I review it, fix what's off, and publish. About $0.06 per post in API costs."
 
-3. **The honest/funny part (1–2 sentences).** What was hard, what's counterintuitive, or a self-aware observation about the process. This is what makes the post feel human instead of promotional. Must be self-explanatory to a cold reader — no internal scores, no project jargon, no assumed context.
+3. **The part you like most, or the honest/funny part (1–2 sentences).** The coolest thing it does, what's counterintuitive, or a self-aware observation about the process. It does not have to be a struggle: "What I like most is that he isn't just a chat box. He's wired into the phone." This is what makes the post feel human instead of promotional. Must be self-explanatory to a cold reader — no internal scores, no project jargon, no assumed context.
 
    ✅ "The hardest part was making it not sound like an AI wrote it. It did, but made it way harder for readers to find out :)"
    ❌ "(This post got an 8.7 on the second try.)" — 8.7 means nothing without context.
+
+3b. **The bigger picture (1 sentence, when it's true).** If the project is one piece of a larger effort (a series description that covers several agents or apps, a suite, a platform), say so once and name the concrete next piece. ✅ "He's the first app in the Batcave, a set of apps where each one is run by its own AI agent. Next up is Ra's, the training agent." Only claim what is true today; anything that isn't built yet is "next" or "coming", never present tense. No hype words ("ecosystem", "empire", "revolution").
+
+3c. **Personal details use the author's own framing.** Trips, family, health, numbers: take them from the post body and the series brief as written, and don't add color. If the brief says "family vacation", don't write "last-minute getaway". Never surface something the post deliberately keeps private (a body-weight number, a salary, a client name).
 
 4. **CTA (when `goToMarketState` is `live`).** If the project config has `goToMarketState: "live"` and a `liveUrl`, include an explicit invitation to join or try the product before the link line. Name the community or sport types if the product targets a specific one (derive from `tone` or `skills_showcased` in project config — e.g. "SUP, kayak, canoe, surf, row" for a paddle sports app). The invitation should name the action: "connect your Strava account and join", "sign up", "try it". A passive "the app is live at X" does not satisfy this — it must be a direct invitation. Example: "If you paddle (SUP, kayak, canoe, surf, row, anything), connect your Strava account and join at thepaddlegames.com."
 
@@ -133,6 +140,7 @@ If `series` is absent from frontmatter, set `SERIES_INFO.is_series = false` and 
    - ✅ "Has anyone else caught their LLM evaluator inflating scores when it could see the source data?"
    - ✅ "What did you find when you tried isolating evaluators from source material?"
    - ✅ "Anyone else hit this with their own scoring pipelines?"
+   - ✅ "If you had your own agent, which native feature would you wire it into first?" (a concrete choice from the reader's own world is fine too)
    - ❌ "How do you handle evaluator bias?" (asks for theory)
    - ❌ "What's the right approach?" (too abstract)
    - ❌ "Curious about your thoughts." (asks for nothing specific)
@@ -202,7 +210,9 @@ Before showing anything to Pablo, re-read both drafts against this checklist. **
 [ ] X Tweet 1 names the artifact in plain language too (same cold-reader rule) — "Built a pipeline that..." or equivalent. Project-internal names without an anchor fail on X same as on LinkedIn
 [ ] LinkedIn word count ≤ 150 (hard cap; flag yourself at 120 and consider cutting)
 [ ] LinkedIn ends with a question mark
-[ ] Question asks for a specific experience, not an opinion
+[ ] Question asks for a specific experience or a concrete choice, not an opinion
+[ ] The hook is the best thing that works, not a bug, unless the post is mainly about that failure
+[ ] Personal details (trip, family, health, numbers) match how the post and series brief describe them, and nothing the post keeps private shows up
     (✅ "Has anyone _____" / "What did you find when _____"; ❌ "What do you think" / "How do you handle")
 [ ] Every X tweet ≤ 280 chars including link; Tweet 1 ≤ 240 chars
 [ ] X thread ≤ 3 tweets total (single tweet preferred); 4 tweets only when a live-product CTA forces it
