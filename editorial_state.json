@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-06-01T15:20:00Z",
+  "last_run": "2026-10-23T03:17:23+00:00",
   "projects": {
     "paddle-games": {
       "last_posted": "2026-05-26",
@@ -115,25 +115,31 @@
         }
       ]
     },
+    "paddle-games-tools-plugin": {
+      "last_posted": "2026-06-26",
+      "posts_this_month": 2,
+      "has_intro_post": true,
+      "draft_queue": [],
+      "run_history": [
+        {
+          "date": "2026-06-07",
+          "slug": "2026-06-07-nigel-splashforth-is-now-a-cloud-run-job",
+          "result": "published",
+          "rater_composite": 8.2
+        },
+        {
+          "date": "2026-06-26",
+          "slug": "2026-06-26-where-paddlers-cluster-routes-belong",
+          "result": "published",
+          "rater_composite": 7.5
+        }
+      ]
+    },
     "project-batcave": {
-      "last_posted": "2026-06-01",
+      "last_posted": "2026-10-23",
       "posts_this_month": 1,
       "has_intro_post": true,
-      "draft_queue": [
-        {
-          "slug": "2026-06-01-behind-project-batcave-multi-agent-architecture",
-          "title": "Behind Project Batcave: A Multi-Agent Architecture Inspired by the Batman Universe",
-          "mdx_path": "/Users/pablo/Development/dimeglio.dev/content/blog/2026-06-01-behind-project-batcave-multi-agent-architecture.mdx",
-          "cover_ok": true,
-          "rater_composite": 8.4,
-          "rater_pass": true,
-          "intro_mode": true,
-          "created_at": "2026-06-01",
-          "status": "pending_review",
-          "series_id": "batcave-build",
-          "series_order": 1
-        }
-      ],
+      "draft_queue": [],
       "run_history": [
         {
           "date": "2026-05-20",
@@ -153,6 +159,23 @@
           "result": "published",
           "series_id": "batcave-build",
           "series_order": 1
+        },
+        {
+          "date": "2026-10-22",
+          "slug": "2026-10-22-replacing-myfitnesspal-before-punta-cana",
+          "result": "drafted",
+          "rater_composite": 8.3,
+          "series_id": "batcave-build",
+          "series_order": 2
+        },
+        {
+          "date": "2026-10-23",
+          "slug": "2026-10-22-replacing-myfitnesspal-before-punta-cana",
+          "result": "published",
+          "rater_composite": 7.9,
+          "commit_sha": "5c6bfed",
+          "series_id": "batcave-build",
+          "series_order": 2
         }
       ]
     }
@@ -166,6 +189,12 @@
           "slug": "2026-06-01-behind-project-batcave-multi-agent-architecture",
           "title": "Behind Project Batcave: A Multi-Agent Architecture Inspired by the Batman Universe",
           "drafted_at": "2026-06-01"
+        },
+        "2": {
+          "status": "published",
+          "slug": "2026-10-22-replacing-myfitnesspal-before-punta-cana",
+          "title": "Replacing MyFitnessPal Before Punta Cana",
+          "drafted_at": "2026-10-22"
         }
       }
     }
