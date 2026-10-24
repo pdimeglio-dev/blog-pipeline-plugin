@@ -123,6 +123,45 @@ fi
 
 If anything else is dirty, return `{ "status": "aborted", "reason": "dirty_working_tree", "files": [...] }` and stop. **Do not** offer to stash or commit those changes — that is the user's call.
 
+### 5b. Work on a publish branch, never on main
+
+Pablo never pushes to `main` on dimeglio.dev; every publish goes through a `publish/<slug-without-date>` branch and a PR.
+
+```bash
+cd "$DIMEGLIO_DEV_PATH"
+git fetch -q origin
+CURRENT=$(git branch --show-current)
+PUBLISH_BRANCH="publish/${SLUG#????-??-??-}"
+if [ "$CURRENT" = "main" ]; then
+  git pull -q --ff-only
+  git checkout -q -b "$PUBLISH_BRANCH"
+  STACKED_ON=""
+elif [ "$CURRENT" = "$PUBLISH_BRANCH" ]; then
+  STACKED_ON=""   # re-run on an existing publish branch; ask Pablo if it was stacked
+else
+  # On some other feature branch: the post probably needs its unmerged code.
+  STACKED_ON="$CURRENT"
+  git checkout -q -b "$PUBLISH_BRANCH"
+fi
+```
+
+Uncommitted draft files (the MDX, its `public/blog/<slug>/` dir) come along with the checkout. If `STACKED_ON` is set, say so in the summary and in the PR body: "**Merge after the PR for `<branch>`.**"
+
+**Dependency check.** Before committing, make sure everything the MDX uses exists on `origin/main`, or is on the branch it's stacked on:
+
+```bash
+# JSX components used in the post
+for C in $(grep -oE '<[A-Z][A-Za-z]+' "$MDX_PATH" | tr -d '<' | sort -u); do
+  git show origin/main:components/mdx-content.tsx | grep -q "\b$C\b" || echo "NOT ON MAIN: <$C>"
+done
+# Mermaid logo nodes need the icon pack registered in the renderer
+grep -q '@{ *icon:' "$MDX_PATH" && { git show origin/main:components/ui/mermaid.tsx | grep -q registerIconPacks || echo "NOT ON MAIN: mermaid icon pack"; }
+```
+
+Any `NOT ON MAIN` line with no `STACKED_ON` branch providing it means the post will render broken once merged. Stop and tell Pablo which component is missing. Props are not checked (e.g. `<YouTubeEmbed vertical />`); if the post uses a prop you haven't seen on main before, mention it.
+
+**Ingest runs before merge.** `npm run ingest` (Step 6) writes the post to the Pinecone index immediately, so Guillermo can cite the post before its page is live. Mention this in the summary.
+
 ### 6. Run ingest
 
 ```bash
@@ -279,13 +318,13 @@ Print a summary:
 ```
 
 Then ask via AskUserQuestion:
-- **Question**: `"Push to origin now? The post will deploy via Vercel."`
-- **Header**: `"Push now?"`
+- **Question**: `"Push <publish branch> and open a PR? The post goes live when the PR merges to main."` (add `" Merge it after <STACKED_ON>'s PR."` when stacked)
+- **Header**: `"Open PR?"`
 - **Options**:
-  - `"Yes, push now"` — run `git -C "$DIMEGLIO_DEV_PATH" push`
-  - `"No, I'll push later"` — exit cleanly
+  - `"Yes, push and open a PR"`: run `git -C "$DIMEGLIO_DEV_PATH" push -u origin "$PUBLISH_BRANCH"`, then `gh pr create --base main --title "publish: <title>"` with a body that has a one-line summary, the "merge after" note when stacked, and a check table (Rater composite, ingest result, em dashes). End the body with the PR attribution line from the session.
+  - `"No, I'll push later"`: exit cleanly, printing the branch name.
 
-Default option ordering: "Yes" first (the natural next step), but require explicit confirmation either way. Never auto-push.
+Never push to `main`, never merge the PR yourself, and never auto-push. Require explicit confirmation.
 
 ### 10. Return JSON
 
@@ -306,7 +345,7 @@ Emit **only** this JSON — no preamble:
 
 `social_copy` is one of `"committed"`, `"skipped"` (file already existed), or `"failed"` (agent error).
 
-If pushed: `"pushed": true` and include the remote ref.
+If pushed: `"pushed": true`, plus `"branch"`, `"pr_url"` and `"stacked_on"` (null when based on main).
 
 If aborted at any step, return one of:
 ```json

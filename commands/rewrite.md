@@ -34,6 +34,7 @@ Or pass a full MDX path:
 After saving:
 
 ```
+/blog-pipeline:preview <slug>  # read it in the browser
 /blog-pipeline:rerate <slug>   # verify the revision passes
 /blog-pipeline:publish <slug>  # publish when ready
 ```
