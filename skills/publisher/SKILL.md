@@ -139,6 +139,8 @@ Sort remaining projects by score descending.
 
 **If `FORCED_PROJECT_ID` is set** (this includes series mode, which sets it in Step 0b): run Reporter only for that one project. Cooldown and monthly cap are bypassed when forced. Skip to Step 4 after — do not show the human selection checkpoint. **Series mode relies on this bypass**: a multi-part arc must not be blocked by `min_days_between_posts` or `max_posts_per_month`, and because scoring is skipped entirely, neither penalty is ever evaluated for series parts.
 
+**Series lookback.** In series mode, pass `since_date: <date>` in the Reporter prompt, where `<date>` is the publish date of `previous_part` (its `result: "published"` entry in the project's `run_history`, falling back to its `drafted_at`). A series part covers everything since the last part, not the project's 14-day `lookback_days`. If there is no previous part, omit `since_date`.
+
 **Otherwise**: for each project not marked capped or already-drafted-today, invoke the Reporter agent via the `Agent` tool with `subagent_type: "blog-pipeline:reporter"`, passing the project `id` in the prompt. Collect all results before continuing.
 
 Do NOT skip low-signal projects here — collect the Reporter JSON regardless and let the human decide. Note `low_signal: true` in the result.
@@ -225,7 +227,7 @@ Capture the Writer's return JSON. If it contains an `error` key, log the error a
 
 #### 4c. Run Rater
 
-Invoke the Rater agent via the `Agent` tool with `subagent_type: "blog-pipeline:rater"`, passing the `mdx_path` from the Writer's return JSON in the prompt.
+Invoke the Rater agent via the `Agent` tool with `subagent_type: "blog-pipeline:rater"`, passing the `mdx_path` and `post_type` from the Writer's return JSON in the prompt (the Rater gates its multi-agent contracts cap on `post_type`).
 
 Capture the Rater JSON. Check `pass` and `composite`.
 
@@ -303,5 +305,7 @@ Next: review drafts in dimeglio.dev/content/blog/, then /blog-pipeline:publish <
 The Mode line is omitted in pure automatic mode (0 args).
 
 If any cover image failed (`cover_ok: false`), note it per draft: "⚠ <slug>: cover image generation failed — run Writer manually to retry."
+
+If the Writer returned a non-empty `unconfirmed_details`, list each sentence under the draft with "Confirm or correct before publishing:". These are personal details the Writer could not source (a trip, a time of day, a habit). Ask Pablo about them in the summary rather than leaving them for him to find. Also print the Writer's `post_type`, and pass it to the Rater prompt so the right caps apply.
 
 If the bootstrap warning fired for any project (published posts detected but `has_intro_post` is false), surface it prominently in the summary.

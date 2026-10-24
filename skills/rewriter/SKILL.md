@@ -66,6 +66,10 @@ Read the full MDX file. Identify:
 
 Read `${DIMEGLIO_DEV_PATH}/AGENTS.md`. Locate the section between `<!-- BEGIN:blog-voice-rules -->` and `<!-- END:blog-voice-rules -->`. Extract the **banned patterns** and **required patterns** lists. Apply them during the revision. Do not paraphrase or cache — read fresh.
 
+Then read `${PLUGIN_ROOT}/voice-samples.md` (`PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-/Users/pablo/Development/blog-pipeline-plugin}"`). Revisions should move toward those samples: plainer, Pablo's own phrases, "we" for him and the agent. When he says a passage "doesn't read like me", rebuild it from how he described the thing in chat, using his words, rather than polishing the draft's sentences.
+
+**When Pablo rewrites a passage himself** (pastes his own version, or dictates it in chat and approves the result), offer once at save time to append it to `voice-samples.md` as a new sample, with a one-line note on what his edit changed. Those are the strongest voice signal the pipeline gets.
+
 ### 5. Ask for changes — do NOT edit yet
 
 Present a quick summary of the draft and ask:
@@ -106,6 +110,8 @@ Use the Edit tool for targeted changes (a heading, a paragraph). Use Write for a
 - **No insider roadmap labels**: "Phase N", "Sprint N", "Milestone N", "Q1 OKR", "Epic foo".
 - **No invented go-to-market language**: don't add "waitlist", "early access", "beta" unless the user explicitly asks.
 - **No fabricated specifics**: don't invent time estimates ("took 40 minutes", "spent an afternoon") that weren't in the original.
+- **No invented personal details**: no trips, family, times of day, habits or feelings that Pablo didn't state. If a revision needs a personal beat, ask him for it instead of writing one. Use his framing exactly ("family vacation", not "last-minute trip").
+- **Depth follows the post type**: for a personal or product post, cutting implementation detail (SQL, CI internals, per-guard lists, bug war stories) is usually right; keep one deep technical section chosen for interest. Don't argue for restoring detail Pablo cut on purpose.
 - **Third-party platform framing**: never frame integrated platforms (Strava, Shopify, Slack, etc.) as deficient. If the user asks for criticism of a platform, push back and propose the "I love X, it just wasn't built for this community" framing instead.
 - **No audience-naming / job-search framing**: never name the recruiter or hiring manager as the audience inside the post. Banned phrases: "job-search use case", "recruiter or hiring manager", "land an interview", "hire this person", "to a recruiter", "to a hiring manager". Describe the system on its own merits.
 - **Precise terminology for lightweight artifacts**: when the post is about a plugin/skill system, prefer "skills", "subagents", "commands" over "agents" when the underlying objects are markdown files. "Eight skills wired together" reads honest; "eight agents" oversells.
@@ -188,6 +194,7 @@ Confirm with:
 Saved to <path>.
 
 Next steps:
+  - /blog-pipeline:preview <slug>  — read the revision in the browser
   - /blog-pipeline:rerate <slug>   — run the Rater on the revised draft
   - /blog-pipeline:publish <slug>  — publish if you're ready
 ```

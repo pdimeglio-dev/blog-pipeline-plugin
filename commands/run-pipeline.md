@@ -43,10 +43,11 @@ When a project is forced, the cooldown (`min_days_between_posts`) and monthly ca
 Review the draft, then:
 
 ```
+/blog-pipeline:preview <slug>    # read the draft in the browser
 /blog-pipeline:rerate <slug>     # re-score after editing
 /blog-pipeline:rewrite <slug>    # interactive revision
 /blog-pipeline:cover <slug>      # regenerate cover image
-/blog-pipeline:publish <slug>    # ingest, commit, optionally push
+/blog-pipeline:publish <slug>    # ingest, commit, open a PR
 ```
 
 ## Invoke the Publisher skill

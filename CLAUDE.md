@@ -44,10 +44,10 @@ Build sequentially — each phase depends on the previous output contract.
 | Agent | Model | Reason |
 |---|---|---|
 | Reporter | Haiku | Mechanical data extraction, no creativity |
-| Rater | Haiku | Rubric-based scoring, no creativity |
-| Publisher | Haiku | Orchestration logic, no creativity |
-| Writer | Sonnet | Voice adherence and writing quality matter |
-| Social Manager | Sonnet | Platform-native tone matters |
+| Rater | Sonnet | Judgment calls (post type, author decisions, no invented suggestions); Haiku fought editorial choices |
+| Publisher | Sonnet | Orchestration logic, no creativity |
+| Writer | Opus | Voice is the bottleneck: Sonnet drafts needed many voice rounds; one call per post |
+| Social Manager | Sonnet | Platform-native tone matters (LinkedIn, X, Instagram) |
 
 ## Locked Design Decisions
 
