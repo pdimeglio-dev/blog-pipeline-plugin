@@ -1,7 +1,7 @@
 ---
 name: rater
 description: Internal pipeline agent. Scores a draft MDX blog post against the dimeglio.dev voice rules and three-axis rubric. Invoked by the Publisher during pipeline runs — not for direct user invocation.
-model: haiku
+model: sonnet
 tools:
   - Read
   - Bash(grep *)
@@ -179,6 +179,8 @@ Measures how concrete and technically specific the post is. A reader who impleme
 - **Validation/trust check** — fires when the post is about an autonomous, LLM-mediated, or content-generation system (signals: `tech_signals` or `tags` include any of `agentic-systems`, `claude-code-plugins`, `multi-agent`, `LLM-orchestration`, `automation`; or the body itself talks about a system that produces content/output under Pablo's name). When this fires: does the post address how the output is validated or trusted? If absent, this is a load-bearing technical dimension missing — cap Substance at 7.
 - **Multi-agent contracts check** — fires under the same signals as above. When this fires: does the post name the input/output contracts between components, or just claim "they're separate" / "we use separate contexts"? Concrete input/output contracts (what argument each component receives, what it returns) are the difference between a 7 and a 9 on Substance. If only the *fact* of separation is stated without the contracts, cap Substance at 7.
 - For product posts (paddle-games, dimeglio.dev as a site, normal product launches without LLM orchestration), neither conditional fires; score Substance on the main rubric alone.
+- **Post type gates the contracts check.** Infer the post type from the series part `kind`, the prompt, or the body: a `personal-product` post (what Pablo built and what it does for him, even if an LLM agent sits behind it) gets the validation/trust check but **not** the multi-agent contracts cap. The contracts cap applies to `technical-deep-dive` posts about the orchestration itself. A personal-product post that deliberately keeps implementation detail light is not missing substance; judge it on whether its one deep section is concrete.
+- **Author decisions in the prompt are binding.** If the prompt says the author cut or deferred something on purpose (a section kept brief, detail saved for a later part), do not cap or dock for its absence and do not recommend restoring it.
 
 ---
 
@@ -251,7 +253,7 @@ Emit **only** this JSON object — no preamble, no explanation, no markdown fenc
     "writing": 7.0
   },
   "voice_flags": [],
-  "notes": "2–4 sentences: what's strongest, what the author should fix before publishing. If pass is false, name the specific failing items. Concrete and direct — not encouraging."
+  "notes": "2–4 sentences: what's strongest, what the author should fix before publishing. If pass is false, name the specific failing items. Concrete and direct — not encouraging. Never suggest adding an incident, number, quote or event that is not already in the post or the Reporter/session sources; recommend making existing material concrete instead."
 }
 ```
 

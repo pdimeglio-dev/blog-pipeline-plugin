@@ -28,7 +28,7 @@ If given a project_id, read `projects.config.json` and find the matching entry. 
 
 Expand `~` in the path: replace `~` with the actual home directory path.
 
-Also read `editorial_state.json` from the top-level `dimeglio_dev_path` and extract `last_posted` for this project:
+Also read `editorial_state.json` from the plugin root (`${CLAUDE_PLUGIN_ROOT:-/Users/pablo/Development/blog-pipeline-plugin}`, next to `projects.config.json`) and extract `last_posted` for this project:
 
 ```bash
 DIMEGLIO_DEV_PATH=$(jq -r '.dimeglio_dev_path' "$PLUGIN_ROOT/projects.config.json" | sed "s|^~|$HOME|")
@@ -62,6 +62,8 @@ GIT_REF=$(git -C <expanded_path> rev-parse --abbrev-ref --symbolic-full-name @{u
 Now run the log against `$GIT_REF` so you see commits that landed on the remote even if the local branch hasn't been merged yet.
 
 Use the **effective since-date**: the more recent of `last_posted` (from Step 1) and `lookback_days` ago. This ensures the Reporter never re-surfaces commits already covered by a prior post.
+
+**Override:** if your prompt contains `since_date: YYYY-MM-DD` (the Publisher sends this in series mode, set to the previous part's publish date), use it as `SINCE_DATE` exactly and ignore both `last_posted` and `lookback_days`. A series part covers everything since the last part, which is often far more than 14 days. Also use it for the session-context window below: replace `$lookback_days` with the number of days between `since_date` and today.
 
 ```bash
 LOOKBACK_DATE=$(date -v-"${lookback_days}"d +%Y-%m-%d 2>/dev/null || date -d "${lookback_days} days ago" +%Y-%m-%d)
