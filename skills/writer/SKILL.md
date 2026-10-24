@@ -1,7 +1,7 @@
 ---
 name: writer
 description: Turns a Reporter JSON object into a complete MDX blog draft plus a DALL-E 3 cover image, dropped into the target site's content directory. Reads voice rules fresh from the site's AGENTS.md and project theme from projects.config.json. Outputs published:false so a human can review before shipping.
-model: sonnet
+model: opus
 allowed-tools:
   - Read
   - Write
@@ -78,6 +78,8 @@ Also extract these optional top-level project fields (used in Step 6a accuracy c
 
 Read `${dimeglio_dev_path}/AGENTS.md`. Locate the section between `<!-- BEGIN:blog-voice-rules -->` and `<!-- END:blog-voice-rules -->`. Extract the **banned patterns** list and the **required patterns** list. Apply them when drafting. Do not paraphrase the rules into the skill — read them fresh every run, because they change.
 
+Then read `${PLUGIN_ROOT}/voice-samples.md`. The AGENTS.md rules say what to avoid; the samples show what Pablo's writing actually sounds like, plus the patterns his own edits keep applying (plain over clever, "we" for him and the agent, his own phrases, personal process over implementation detail, lead with what works). Write toward the samples. Before returning, reread your opening and closing next to them: if a line would sound out of place there, rewrite it.
+
 ### 4. Decide title and slug
 
 Pick a title that's:
@@ -149,6 +151,14 @@ Generate slug:
 
 **No fabricated specifics**: Only include time estimates, durations, and counts that appear explicitly in `session_context` or the Reporter JSON fields. Do not invent them from inference ("took a few hours", "about two minutes", "spent an afternoon"). If you don't know how long something took, don't say how long it took. Fabricated specifics undermine the post's credibility and contradict what the author actually experienced.
 
+**No invented personal details.** Anything about Pablo's life (trips, family, health, body numbers, where or when he did something, how he felt, habits like "where I've always lost it before") comes only from the series brief, the topic hint, `session_context`, or text he wrote. Do not add color: if the brief says "family vacation", don't write "last-minute getaway"; don't put him "at breakfast" or "at 7am" unless a source says so. When the story needs a personal beat you don't have, write the plainest version that is certainly true, and list the sentence in `unconfirmed_details` in your return JSON so the Publisher can ask him. Never surface something a brief marks as private.
+
+**Post type sets the depth.** Decide `post_type` before drafting, from the series part's `kind`/brief or the topic:
+- `personal-product`: what Pablo built and what it does for him (an app, a tool he uses daily, a personal deadline). Keep almost everything at the "what it does for me" level. Allow **one** deep technical section, chosen for being interesting to a general engineer (e.g. how search ranks food), not for completeness. Bugs get a sentence of texture at most unless the post is about the bug. No SQL, no CI internals, no per-guard lists.
+- `technical-deep-dive`: architecture, memory, evals, internals. Contracts, code, failure stories and numbers are the substance here.
+- `intro`: the existing Intro Mode structure.
+Record the choice as `post_type` in the frontmatter-adjacent return JSON (not in the MDX).
+
 **Never use `period.from/to` as the build timeline.** The Reporter's `period` is the *scan window* (how far back git history was read), not the duration of development. If you need to describe how long something took to build, derive it from the actual commit dates in `recent_features[].commits` or `session_context` — or don't mention a duration at all. Writing "built in 14 days" when `lookback_days: 14` is set is always wrong unless the commits literally span 14 days.
 
 **Third-party platform framing**: If the project integrates with a third-party platform (Strava, Shopify, Slack, Apple Health, etc.) and the product exists because that platform didn't serve a specific community or use case, never frame this as the platform not caring, being deficient, or failing the user. The correct framing is: the platform is good and Pablo uses it; the product fills a gap for a specific community the platform wasn't built for. This matters because the product depends on that platform's API and community, and readers from that community will notice criticism. Check for this whenever `tech_signals` or `recent_features` reference a third-party platform as the source of data, activities, or auth (e.g. Strava OAuth, Shopify webhooks).
@@ -212,6 +222,8 @@ Generate slug:
 - No "this demonstrates", "showcases", "force multiplier", "robust", "seamless" patterns.
 - No `## PR 1`, `## Step 1`, `## Day 1` headings. Sections are concepts, not chronology. (Note: an inline list of phases inside a section, with bold labels like `**PR 1** — ...`, is also forbidden as a structural device.)
 - No secondary bugs or unrelated issues included. The Reporter JSON may have multiple bugs_fixed and recent_features. Only those directly relevant to the post's single main topic appear in the draft. Everything else is omitted.
+- No personal detail (trip, family, health, time of day, habits) that isn't in a brief, topic hint, `session_context` or Pablo's own text. Unsure ones are listed in `unconfirmed_details`.
+- Opening and closing reread next to `voice-samples.md` and still fit.
 - No fabricated time estimates or durations. If a specific time ("took 40 minutes", "spent an afternoon", "a week of work") doesn't appear verbatim in session_context or the Reporter JSON, do not write it.
 - No insider roadmap labels in user-facing prose. Scan the full draft for "Phase [N]", "Sprint [N]", "Milestone [N]", "Q[1-4] roadmap", "Q[1-4] OKR", "Epic [name]". A reader has no idea what "Phase 4 of the spatial challenge roadmap" means. Replace with the user-visible capability: "spatial challenge notifications" or "race timing" — whatever the phase actually delivers.
 - No invented go-to-market language. Match the body's status claims to `goToMarketState` in the project config. If `live`: don't say "waitlist", "early access", "beta", "join the waitlist", or "coming soon". If `waitlist-open`: you may say "join the waitlist" but not "live". If absent or unknown: omit go-to-market claims entirely.
@@ -484,6 +496,8 @@ Emit **only** this JSON object — no preamble, no explanation, no markdown fenc
   "mdx_path": "/full/path/to/content/blog/<slug>.mdx",
   "cover_path": "/full/path/to/public/blog/<slug>/cover.jpg",
   "cover_ok": true,
+  "post_type": "personal-product | technical-deep-dive | intro",
+  "unconfirmed_details": ["Sentences with personal details no source confirmed, quoted exactly"],
   "errors": []
 }
 ```
