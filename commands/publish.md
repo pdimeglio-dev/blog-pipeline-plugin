@@ -10,7 +10,7 @@ Publishes an approved draft to dimeglio.dev. Replaces the 4-step manual publish 
 3. Runs `npm run ingest` to regenerate the slugs index and embeddings (this updates the Pinecone index right away, before the PR merges)
 4. Stages and commits the MDX + cover dir + ingest output as `publish: <title>`
 5. Updates `editorial_state.json` (last_posted, posts_this_month, removes from draft_queue, marks intro complete if applicable)
-6. Generates LinkedIn, X and Instagram social copy via the Social Manager (interactive review loop), commits as `social: <title>`
+6. Generates LinkedIn, X and Instagram social copy via the Social Manager, reviews it with the Social Rater, runs the approval loop with you, commits as `social: <title>`
 7. Asks before pushing the branch and opening a PR. Never pushes to main, never merges
 
 ## Usage

@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-10-23T03:17:23+00:00",
+  "last_run": "2026-11-04T14:41:16+00:00",
   "projects": {
     "paddle-games": {
       "last_posted": "2026-05-26",
@@ -33,6 +33,12 @@
           "result": "published",
           "rater_composite": 8.1,
           "commit_sha": "e0e4f02"
+        },
+        {
+          "date": "2026-11-04",
+          "slug": null,
+          "result": "skipped",
+          "reason": "low_signal"
         }
       ]
     },
@@ -79,6 +85,12 @@
           "slug": null,
           "result": "skipped",
           "reason": "not selected by user"
+        },
+        {
+          "date": "2026-11-04",
+          "slug": null,
+          "result": "skipped",
+          "reason": "not selected by user"
         }
       ]
     },
@@ -112,6 +124,12 @@
           "result": "rejected",
           "rater_composite": 8.9,
           "reason": "voice_flags: false positives -- banned phrases appear as quoted examples in post body, not as post voice"
+        },
+        {
+          "date": "2026-11-04",
+          "slug": null,
+          "result": "skipped",
+          "reason": "not selected by user"
         }
       ]
     },
@@ -132,11 +150,17 @@
           "slug": "2026-06-26-where-paddlers-cluster-routes-belong",
           "result": "published",
           "rater_composite": 7.5
+        },
+        {
+          "date": "2026-11-04",
+          "slug": null,
+          "result": "skipped",
+          "reason": "low_signal"
         }
       ]
     },
     "project-batcave": {
-      "last_posted": "2026-10-23",
+      "last_posted": "2026-11-04",
       "posts_this_month": 1,
       "has_intro_post": true,
       "draft_queue": [],
@@ -176,6 +200,23 @@
           "commit_sha": "5c6bfed",
           "series_id": "batcave-build",
           "series_order": 2
+        },
+        {
+          "date": "2026-11-04",
+          "slug": "2026-11-04-the-telegram-bot-needed-a-second-front-door",
+          "result": "drafted",
+          "rater_composite": 8.8,
+          "series_id": "batcave-build",
+          "series_order": 3
+        },
+        {
+          "date": "2026-11-04",
+          "slug": "2026-11-04-the-telegram-bot-needed-a-second-front-door",
+          "result": "published",
+          "rater_composite": 8.6,
+          "commit_sha": "98fab38",
+          "series_id": "batcave-build",
+          "series_order": 3
         }
       ]
     }
@@ -195,6 +236,12 @@
           "slug": "2026-10-22-replacing-myfitnesspal-before-punta-cana",
           "title": "Replacing MyFitnessPal Before Punta Cana",
           "drafted_at": "2026-10-22"
+        },
+        "3": {
+          "status": "published",
+          "slug": "2026-11-04-the-telegram-bot-needed-a-second-front-door",
+          "title": "The Telegram Bot Needed a Second Front Door",
+          "drafted_at": "2026-11-04"
         }
       }
     }

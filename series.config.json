@@ -27,7 +27,7 @@
           "order": 3,
           "slug_stub": "from-telegram-bot-to-platform",
           "kind": "deep-dive",
-          "status": "planned",
+          "status": "published",
           "diagram": true,
           "brief": "How a single-user Telegram bot was reorganized so a web app and a phone app could use the same agent and data. Moments: core/ extracted out of the MCP server with userId threaded through every function; a users table and row-level security; a forward-only SQL migration runner; a Hono REST API with JWT auth as a third Cloud Run service; a dev Supabase project evals cannot escape from; packages/app-core as the non-rendering layer both apps share (query wiring, units, dates, trends) with zero runtime dependencies, after a react-native-web shim was considered and rejected; 'generate, don't share or copy': the phone's design tokens are generated from the web app's CSS @theme, the API client is generated, and CI fails on drift; CI that blocks a deploy whose schema migration is not applied yet, and a credential scan added after .env.local leaked into a commit. Gordon's app turns run through the same queue and worker as Telegram, with the reply pushed. Include a Mermaid of the platform: Telegram and the apps -> ingest/API -> Cloud Tasks -> worker -> orchestrator/agents -> core -> Supabase. Link back to Part 1 and Part 2."
         },

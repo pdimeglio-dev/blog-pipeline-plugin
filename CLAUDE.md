@@ -47,7 +47,8 @@ Build sequentially — each phase depends on the previous output contract.
 | Rater | Sonnet | Judgment calls (post type, author decisions, no invented suggestions); Haiku fought editorial choices |
 | Publisher | Sonnet | Orchestration logic, no creativity |
 | Writer | Opus | Voice is the bottleneck: Sonnet drafts needed many voice rounds; one call per post |
-| Social Manager | Sonnet | Platform-native tone matters (LinkedIn, X, Instagram) |
+| Social Manager | Opus | Voice is the bottleneck here too: Sonnet drafts fell back on the template |
+| Social Rater | Sonnet | Independent voice and fact review of social copy, same reason as the Rater |
 
 ## Locked Design Decisions
 

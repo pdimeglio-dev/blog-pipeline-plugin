@@ -42,6 +42,22 @@ Raw, unedited. Useful for rhythm and word choice, not to copy verbatim.
 
 > say briefly that I have found bugs on the mobile app ux and also some on the backend and agents code or tools, but have been working on fixing them, adding tests and evals everytime something new was found.
 
+## Sample 4: LinkedIn post, Building the Batcave Part 3 (2026-11-04)
+
+Drafted against Sample 1 after he rejected a template-shaped draft, then revised by Pablo and posted. He said the first version of the opener needed more explanation and didn't say where things ended up, then corrected "ready to open up to other users" because there's no signup yet.
+
+> My AI nutrition agent, Gordon, started as a Telegram bot built for exactly one user: me. My user id was a constant in the code, so as far as he knew, nobody else could ever exist. Now he has a web app and an iPhone app, and the code is ready for other users.
+>
+> It started because I wanted to open Gordon from my phone without going through a chat app. That meant getting my user id out of the code, and a web app and an iPhone app talking to the same agent and the same diary, without breaking the bot.
+>
+> The cool part is that it's still one Gordon. Telegram and the apps only differ at the front door. Behind it, it's the same queue, the same worker and the same agent. I can send him a message, lock my phone, and his reply shows up on the lock screen when he's done.
+>
+> Being honest, most of the guardrails in there exist because I tripped over something first, like the eval run that wrote 13 rows into my real diary.
+>
+> There's no signup yet, so it's still just me using him, but the code doesn't assume that anymore.
+>
+> Part 3 of Building the Batcave. Next up: memory, where I thought Gordon had four tiers and then read the code.
+
 ---
 
 ## What his edits consistently did
@@ -56,3 +72,5 @@ Patterns from the Part 2 revision loop. Each one came from a specific edit.
 - **Technical depth in one place.** He cut the SQL migration, the TestFlight story, the eval-drift details and the voice-guard list as "too much detail a blog reader wouldn't care about", then asked for more on search because that part was interesting. One deep section, chosen for interest, beats depth everywhere.
 - **Facts about his life stay his.** Family vacation (not "last-minute trip"), no body-weight number, no invented times of day. When the draft guessed, he corrected it.
 - **Honest scope.** "The Batcave is a set of AI agents ... now they're getting apps", not "a suite of apps running in production". He corrected framing that overstated what exists.
+- **Social copy is a story, not filled-in slots.** The rejected Part 3 draft opened "This post is the plumbing", listed topics in the link line, added a parenthetical aside and a closing question. The version he liked told what he wanted, what it can do now (lock the phone, the reply still arrives) and one honest line.
+- **Say where it ended up.** He sent back an opener that stopped at the problem ("needs more explanation"). Openers say what was true then and what's true now, including what isn't there yet.
