@@ -148,7 +148,8 @@ Manual flow (if needed):
 | Writer | Opus | JSON → MDX post + gpt-image-1 cover image, written toward `voice-samples.md` |
 | Rater | Sonnet | Scores draft, checks voice rules, pass/fail gate (threshold 6.5), caps depend on post type |
 | Publisher | Sonnet | Orchestrates Reporter → Writer → Rater, manages `editorial_state.json` |
-| Social Manager | Sonnet | Interactive LinkedIn + X + Instagram copy — revises on feedback, saves on approval |
+| Social Manager | Opus | LinkedIn + X + Instagram copy in Pablo's voice — revises on feedback, saves on approval |
+| Social Rater | Sonnet | Independent voice and fact review of social copy |
 | Rewriter | Sonnet | Interactive revision of an existing draft — applies targeted edits, runs Writer self-check |
 | Cover Regenerator | Sonnet | Re-runs DALL-E cover generation + logo compositing for an existing post |
 | Deployer | Sonnet | Publishes an approved draft — flip `published`, ingest, commit, update state, push on confirm |

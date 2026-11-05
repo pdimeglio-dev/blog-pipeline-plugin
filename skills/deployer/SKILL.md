@@ -287,22 +287,33 @@ SOCIAL_FILE="${DIMEGLIO_DEV_PATH}/content/blog/${SLUG}.social.json"
 
 If `$SOCIAL_FILE` already exists, skip this step — don't overwrite approved social copy.
 
-If it doesn't exist, invoke the Social Manager agent via the `Agent` tool with `subagent_type: "blog-pipeline:social-manager"`, passing the MDX path in the prompt:
+Subagents can't talk to Pablo, so this step runs the review loop itself:
 
-```
-Generate social copy for this post: <MDX_PATH>
-```
+1. **Draft.** Invoke the Agent tool with `subagent_type: "blog-pipeline:social-manager"`. Include anything Pablo said in this session about how he used the feature. It is usually the best material. The notes contain only what he actually said. Mark anything you worked out yourself from a screenshot as inferred, including what happened when and how long it took:
 
-The Social Manager will present LinkedIn and X drafts, run an interactive review loop with the user, and save `<slug>.social.json` once approved.
+   ```
+   Generate social copy for this post: <MDX_PATH>
+   You are running as a subagent: return the drafts and do not write the file.
+   Notes from Pablo: <what he said, or "none">
+Inferred, not confirmed: <what you worked out from screenshots, or "none">
+   ```
 
-After the Social Manager completes, if `$SOCIAL_FILE` now exists, stage and commit it:
+2. **Review.** Invoke the Agent tool with `subagent_type: "blog-pipeline:social-rater"`, passing the MDX path, the drafts and the same notes, with inferred items still marked. If it returned any flags, `fail` or `note`, send them back to the Social Manager (`SendMessage`) for one revision. Don't loop further: anything still flagged goes to Pablo in step 3.
+
+3. **Present.** Show Pablo the drafts in full, with any remaining flags and which visual the Instagram caption is for. Ask what to change, and use `SendMessage` to the Social Manager for revisions until he approves. Keep each platform's approval separate.
+
+4. **Save.** Once he approves, ask the Social Manager to write `<slug>.social.json` with the exact approved text.
+
+5. **Capture.** If Pablo rewrote any of it, offer once to add the final text to `voice-samples.md` as a new sample, with a one-line note on what his edit changed.
+
+Then stage and commit:
 
 ```bash
 git -C "$DIMEGLIO_DEV_PATH" add "content/blog/${SLUG}.social.json"
 git -C "$DIMEGLIO_DEV_PATH" commit -m "social: ${TITLE}"
 ```
 
-If the Social Manager returned an error or the file still doesn't exist, log a warning ("social copy generation failed — run /blog-pipeline:social <slug> manually") and continue. Do not abort the publish for a failed social step.
+If the Social Manager returned an error or the file still doesn't exist, log a warning ("social copy generation failed — run /blog-pipeline:social-manager <slug> manually") and continue. Do not abort the publish for a failed social step.
 
 ### 9. Confirm and ask about push
 
