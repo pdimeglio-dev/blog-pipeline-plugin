@@ -58,6 +58,20 @@ Drafted against Sample 1 after he rejected a template-shaped draft, then revised
 >
 > Part 3 of Building the Batcave. Next up: memory, where I thought Gordon had four tiers and then read the code.
 
+## Sample 5: introducing the agent, Building the Batcave Part 4 (2026-11-10)
+
+Added after Pablo said the post had to explain the Batcave as a multi-agent system and say more about Ra's before the details. He approved the post ("this reads great").
+
+> That post also said Ra's would come last, "and it'll be honest about how simple he still is." So, honestly: until a couple of weeks ago Ra's was a 16-line prompt on Haiku at low effort, with two tools: one to log a set and one to read history back. They wrote to one flat table: exercise as free text, reps, weight, unit. He could write a row down and read it back, and that was about it.
+
+## Sample 6: explaining the core idea in plain words, same post
+
+Added after he asked "are we explaining how evals work and what they are... and more important what the golden sets are and why we need those".
+
+> A golden set is a list of real inputs, each with the right answer written next to it by someone who knows. For Ra's that's me.
+>
+> With normal code I can read the function and write a test for it. With a model there's nothing to read, and the prompt tweak that fixes the workout in front of me can quietly break three I wasn't looking at.
+
 ---
 
 ## What his edits consistently did
@@ -74,3 +88,11 @@ Patterns from the Part 2 revision loop. Each one came from a specific edit.
 - **Honest scope.** "The Batcave is a set of AI agents ... now they're getting apps", not "a suite of apps running in production". He corrected framing that overstated what exists.
 - **Social copy is a story, not filled-in slots.** The rejected Part 3 draft opened "This post is the plumbing", listed topics in the link line, added a parenthetical aside and a closing question. The version he liked told what he wanted, what it can do now (lock the phone, the reply still arrives) and one honest line.
 - **Say where it ended up.** He sent back an opener that stopped at the problem ("needs more explanation"). Openers say what was true then and what's true now, including what isn't there yet.
+
+Patterns from the Part 4 revision loop (Ra's golden sets, 2026-11-10). The full checklist is in dimeglio.dev's AGENTS.md under "Written for a reader who hasn't seen the repo".
+
+- **He gives the spine; build the post on it.** He reframed a trivia title (halt clean vs pause clean) into the process: how the golden sets were built from real data and how their evals drove development. The story is the method, not one example.
+- **Set up the world before the detail.** He asked twice for more context: first what golden sets and evals are and why they're needed, then the Batcave as a multi-agent system and what Ra's was and should become. A series post still has to stand alone.
+- **Say the design split out loud.** "Code to discover the exercises, the LLM to find the structure" had to be its own section, not one sentence in the parser part.
+- **Repo words are not reader words.** "Why we saying things like ADR... or too many details?" Plain names for things, and only the numbers that carry the point.
+- **The explainers he asked for stay.** The Rater kept suggesting cuts to them; he kept them. Long is fine when it's earned.

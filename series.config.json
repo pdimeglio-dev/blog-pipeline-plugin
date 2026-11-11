@@ -33,6 +33,14 @@
         },
         {
           "order": 4,
+          "slug_stub": "where-ras-golden-sets-came-from",
+          "kind": "deep-dive",
+          "status": "published",
+          "diagram": true,
+          "brief": "Ra's evals told through how the golden sets were built: the exercise library import, the SugarWOD export, the CrossFit Open workouts and the Mangine et al. (2023) percentiles, reviewed by hand on one page. Code finds the movement, a model finds the structure. Added 2026-11-10 ahead of the memory post."
+        },
+        {
+          "order": 5,
           "slug_stub": "what-gordon-actually-remembers",
           "kind": "deep-dive",
           "status": "planned",
@@ -40,7 +48,7 @@
           "brief": "Memory, classified from the code. Long-term in Supabase: episodic (food_log, workout_log, water_log, body_metrics: what happened, queried by tools on demand, never auto-recalled), semantic (user_facts, upsert so the newest statement wins; nutrition_goals keep history with effective_from so switching cut to bulk does not re-grade past days), procedural (saved meals, recipes, favorites, pantry). Short-term: Agent SDK session transcripts on the container's disk, with only the session id in Supabase, 4-hour idle expiry; deferred_state for open questions; pending_routing. Not memory: chat_messages is the app's transcript and the model never reads it ('a record of what was said, not Gordon's memory'); caches (custom_foods, prompt cache, phone's offline copy). The counter-intuitive hook: on Cloud Run the session files live on ephemeral disk, so the 4-hour window is a polite fiction; a recycled instance loses the transcript, the SDK says 'No conversation found', the pointer is wiped and the facts in Supabase are what actually carry over. Other moments: 'answering Gordon's question no longer loses his tools' (resuming a deferred session dropped the MCP tools, so the fix passes the original message, question and answer as text into a fresh session); without today's date in the prompt Gordon invented dates; 'today' was Los Angeles time for everyone; 'last seven days' was eight; 30 copies of one protein powder in the cache because NULLs are distinct in a UNIQUE constraint; the CLI's auto-memory switched off on purpose (autoMemoryEnabled: false) because the agents keep memory in user_facts. VERIFY before writing: as of 2026-10-22 user facts were NOT injected at session start (prompts tell the model to call recall_user_facts) despite MEMORY.md saying otherwise; describe whatever the code does at write time. Include a Mermaid of the memory layers. Link to earlier parts."
         },
         {
-          "order": 5,
+          "order": 6,
           "slug_stub": "evals-that-keep-gordon-honest",
           "kind": "deep-dive",
           "status": "planned",
@@ -48,7 +56,7 @@
           "brief": "The eval suites, now eight: routing, tool-selection, faithfulness, memory-recall, question-answer, cost-ceiling, vision, app-photo. Frame through the Part 2 period: two weeks of daily changes made on the go, with evals as the thing that said I had not broken the agent. Friction moments: tool-selection was not running each agent with production's query() options, so it tested a different agent than the one shipping; suites leaked state into each other until each one started clean; evals inherited the developer's CLAUDE.md until settingSources: [] was set; a vision suite added alongside the fix where label photos failed with a 400; a docs entry that retracted half the evidence on an open item. Verify in the repo how evals run in CI today (evals-pr.yml filters by changed area) and the thresholds, rather than repeating the June numbers. Link to earlier parts."
         },
         {
-          "order": 6,
+          "order": 7,
           "slug_stub": "gordon-under-the-hood",
           "kind": "agent-profile",
           "status": "planned",
@@ -56,7 +64,7 @@
           "brief": "Commissioner Gordon as an agent: how the agent behind the app works. Part 2 already covers food search (the search_food contract, the four parallel sources, the 50% coverage floor and the 'nespresso double shot' burgers, the saved/frequency bonus) and the 'he picks the food, the data has the numbers' rule: link back to Part 2 for those and do NOT re-explain them. Cover instead: log_food's contract (food_id plus either grams or servings + unit; a servings log against a food with no gram weight returns needs: grams and Gordon asks, instead of inventing a conversion); one canonical food shape with an adapter per source (USDA, USDA branded, lab, Open Food Facts, custom, recipe) and the bugs that shaped it: branded foods logging zero calories, Open Food Facts vitamins C and D off by 1,000x and 1,000,000x, a measure confused with a number of servings, 'stop asking a model what arithmetic answers', working out what a cup weighs instead of refusing to log it; questions held open with AskUserQuestion instead of asked in prose (the dontAsk permission mode turned 'ask' into a deny, fixed with a PreToolUse defer hook), and answering a question dropping his tools on resume; set_goal_plan using the wizard's math; current-generation models per agent, all at low effort, and the bug where per-agent effort was silently ignored; the byte-stable daily prompt for prompt caching. Persona: warm but authoritative detective, addresses the user as Batman/Bruce; include one short real-feeling exchange. Mention Alfred and Ra's only briefly; Ra's gets his own post later. Include a Mermaid of Gordon's slice (orchestrator -> Gordon -> nutrition tools -> core -> providers + Supabase). Link to earlier parts."
         },
         {
-          "order": 7,
+          "order": 8,
           "slug_stub": "my-bug-board-fixes-itself",
           "kind": "deep-dive",
           "status": "backlog",
