@@ -72,6 +72,26 @@ Added after he asked "are we explaining how evals work and what they are... and 
 >
 > With normal code I can read the function and write a test for it. With a model there's nothing to read, and the prompt tweak that fixes the workout in front of me can quietly break three I wasn't looking at.
 
+## Sample 7: LinkedIn post, Building the Batcave Part 4 (2026-11-11)
+
+Posted by Pablo. The approved draft said the golden sets picked the models but never said how they're used. He asked to explain how the sets feed the evals and how the evals check prompt changes, so the fourth paragraph was added. The honest line was kept to what the post claims: only the free eval runs on every change, the rest by hand.
+
+> Before my AI training agent could read a single workout, we had to build the answer keys.
+>
+> Ra's is the training agent in the Batcave, the set of AI agents I've been building. I wanted him to actually understand my CrossFit workouts, so every piece got a golden set first: real inputs with the right answer next to each one, checked by me.
+>
+> The inputs were real. My own SugarWOD history, a free exercise library, and the CrossFit Open workouts. I went through it on a review page with OK and Wrong buttons.
+>
+> Those sets are what the evals run on. An eval sends every case through Ra's and compares what comes out with the answer I wrote down. Each one has a minimum score, and if a prompt change drops below it, the change doesn't ship. So a tweak that fixes one workout can't quietly break three others.
+>
+> The cool part is that the sets ended up deciding the models. Matching movements uses no model at all, plain rules won. Opus reads the workouts. And Sonnet runs Ra's, because Haiku kept misreading how I describe a result.
+>
+> Being honest, only the movement eval runs on every change by itself, since it costs nothing. The other two I run by hand before anything ships.
+>
+> Part 4 of Building the Batcave. Next up: memory, where I thought Gordon had four tiers and then read the code.
+>
+> Full write-up on the blog, link in comments!
+
 ---
 
 ## What his edits consistently did
@@ -96,3 +116,4 @@ Patterns from the Part 4 revision loop (Ra's golden sets, 2026-11-10). The full 
 - **Say the design split out loud.** "Code to discover the exercises, the LLM to find the structure" had to be its own section, not one sentence in the parser part.
 - **Repo words are not reader words.** "Why we saying things like ADR... or too many details?" Plain names for things, and only the numbers that carry the point.
 - **The explainers he asked for stay.** The Rater kept suggesting cuts to them; he kept them. Long is fine when it's earned.
+- **Explain the method, not just the result.** The approved Part 4 LinkedIn copy said the sets "ended up deciding the models". He posted it only after adding how the sets are used: the eval runs every case, compares with his answer, and a change below the minimum score doesn't ship. When the post is about a method, the social copy says in two or three plain sentences how it works.
