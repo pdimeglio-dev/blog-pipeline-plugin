@@ -143,13 +143,13 @@ Additional direction: {ARG2}
 COVER_DIR="${DIMEGLIO_DEV_PATH}/public/blog/${SLUG}"
 mkdir -p "$COVER_DIR"
 
-# gpt-image-1: quality "low"/"medium"/"high" (not "standard"). Size 1536x1024 for landscape.
-# b64_json avoids expiring URL downloads — decode directly to disk.
+# gpt-image-2: quality "low"/"medium"/"high" (not "standard"). Size 1536x1024 for landscape. (gpt-image-1 was retired.)
+# gpt-image models return b64_json by default, so there is no URL to expire; decode directly to disk.
 PAYLOAD=$(jq -n \
-  --arg model "gpt-image-1" \
+  --arg model "gpt-image-2" \
   --arg prompt "$PROMPT" \
   --arg size "1536x1024" \
-  '{model: $model, prompt: $prompt, size: $size, quality: "low", n: 1, response_format: "b64_json"}')
+  '{model: $model, prompt: $prompt, size: $size, quality: "medium", n: 1}')
 
 IMAGE_B64=""
 for ATTEMPT in 1 2 3 4 5; do
